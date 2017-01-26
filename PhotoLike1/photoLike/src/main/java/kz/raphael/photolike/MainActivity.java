@@ -239,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
 	
 	public class MyPagerAdapter extends FragmentPagerAdapter {
 
-		private final String[] TITLES = { "Друзья", "Группы", "Признания" };
+		private final String[] TITLES = { "Друзья1", "Группы2", "Признания3" };
 
 		public MyPagerAdapter(FragmentManager fm) {
 			super(fm);
