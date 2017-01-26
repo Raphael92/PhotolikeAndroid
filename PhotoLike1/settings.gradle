@@ -1,0 +1,3 @@
+include ':vKServiceActivity'
+include ':library'
+include ':photoLike'
