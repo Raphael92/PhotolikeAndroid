@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 
@@ -27,6 +28,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.Switch;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 	
@@ -214,7 +218,30 @@ public class MainActivity extends AppCompatActivity {
             return v;
         }
     }
-    
+
+  /*  @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+
+        MenuItem menuItem= menu.findItem(R.id.myswitch);
+       View view = MenuItemCompat.getActionView(menuItem);
+        Switch switcha = (Switch)view.findViewById(R.id.switchForActionBar);
+        switcha.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // do anything here on check changed
+                Toast.makeText(MainActivity.this, "Monitored switch is " + (isChecked ? "on" : "off"),
+                        Toast.LENGTH_SHORT).show();
+
+                Intent intent2 = new Intent(SuperAwesomeCardFragment.BROADCAST_ACTION);
+                intent2.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+                sendBroadcast(intent2);
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
+    }*/
+
 	/*@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -261,6 +288,10 @@ public class MainActivity extends AppCompatActivity {
 			return SuperAwesomeCardFragment.newInstance(position);
 		}
 
+        public void getFriends(int position) {
+            //Log.i("TAG", "CARD " + (position));
+
+        }
 	}
 	
 	

@@ -18,24 +18,34 @@ package kz.raphael.photolike;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -87,6 +97,10 @@ public class SuperAwesomeCardFragment extends Fragment {
 	private TableRow rowLoveModal;
 	//private ScrollView sv;
 	private LinearLayout ll;
+
+//	BroadcastReceiver br;
+	public final static String BROADCAST_ACTION = "kz.photolike.raphael";
+
 	public static SuperAwesomeCardFragment newInstance(int position) {
 		SuperAwesomeCardFragment f = new SuperAwesomeCardFragment();
 		Bundle b = new Bundle();
@@ -100,6 +114,8 @@ public class SuperAwesomeCardFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 
 		position = getArguments().getInt(ARG_POSITION);
+		setHasOptionsMenu(true);
+
 	}
 
 	@Override
@@ -178,6 +194,31 @@ public class SuperAwesomeCardFragment extends Fragment {
 			fl.addView(v);
 		}
 		return fl;
+	}
+
+	/*public void getFirends() {
+		VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,sex,bdate,city,photo_max_orig, photo_100","order","hints"));
+		request.registerObject();
+		request.executeWithListener(mRequestListener);
+	}*/
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.main, menu);
+
+		MenuItem menuItem= menu.findItem(R.id.myswitch);
+        View view = MenuItemCompat.getActionView(menuItem);
+        Switch switcha = (Switch)view.findViewById(R.id.switchForActionBar);
+        switcha.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // do anything here on check changed
+                Toast.makeText(getActivity(), "Monitored2 switch is " + (isChecked ? "on" : "off"),
+                        Toast.LENGTH_SHORT).show();
+
+            }
+        });
+		super.onCreateOptionsMenu(menu,inflater);
 	}
 
 	VKRequestListener mRequestListenerGroup = new VKRequestListener() {
@@ -269,7 +310,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 			//InputStream content = (InputStream)url.getContent();
 			//Drawable d = Drawable.createFromStream(content , "src"); 
 			//iv.setImageDrawable(d);
-
+			ll.removeAllViews();
 			FrameLayout.LayoutParams imageViewParams = new FrameLayout.LayoutParams(
 					FrameLayout.LayoutParams.WRAP_CONTENT,
 					FrameLayout.LayoutParams.WRAP_CONTENT);
@@ -282,7 +323,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 				JSONArray arr = obj2.getJSONArray("items");
 
 				//String post_id = "не удалось";
-				for (int i = 0; i <4; i++)
+				for (int i = 0; i < arr.length(); i++)
 				{
 				//	post_id = arr.getJSONObject(i).getString("first_name");
 				//	Log.i("TAG", "post_id = " + arr.getJSONObject(i).getString("photo_100"));
@@ -1105,5 +1146,6 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 
 		}
 	}
+
 
 }
