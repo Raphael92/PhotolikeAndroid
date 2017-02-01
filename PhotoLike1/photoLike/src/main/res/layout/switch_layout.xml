@@ -11,6 +11,7 @@
         android:textOn="@string/woman"
         android:textOff="@string/man"
         android:layout_marginTop="15dp"
+        android:tag="0"
         android:thumb="@drawable/customswitchselector"
         android:track="@drawable/custom_track"
         android:checked="true" />

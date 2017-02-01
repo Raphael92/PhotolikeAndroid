@@ -36,6 +36,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -97,7 +98,8 @@ public class SuperAwesomeCardFragment extends Fragment {
 	private TableRow rowLoveModal;
 	//private ScrollView sv;
 	private LinearLayout ll;
-
+	Boolean eventSwitch = false;
+	int openTabs = 0;
 //	BroadcastReceiver br;
 	public final static String BROADCAST_ACTION = "kz.photolike.raphael";
 
@@ -115,12 +117,15 @@ public class SuperAwesomeCardFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 
 		position = getArguments().getInt(ARG_POSITION);
+		Log.i("TAG", "CARD postion " + position);
 		setHasOptionsMenu(true);
 
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+		Log.i("TAG", "CARD onCreateView " + openTabs);
 
 		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
@@ -207,21 +212,30 @@ public class SuperAwesomeCardFragment extends Fragment {
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.main, menu);
-
 		MenuItem menuItem= menu.findItem(R.id.myswitch);
         View view = MenuItemCompat.getActionView(menuItem);
         Switch switcha = (Switch)view.findViewById(R.id.switchForActionBar);
 
+		switcha.setOnTouchListener(new View.OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				//Log.i("TAG", "touch ");
+				v.setTag(1);
+				return false;
+			}
+		});
         switcha.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // do anything here on check changed
+				Log.i("TAG", "CARD buttonView " + buttonView.getTag());
+				if (buttonView.getTag() == 1) {
+					Toast.makeText(getActivity(), "Monitored2 switch is " + (isChecked ? "on" : "off"),
+							Toast.LENGTH_SHORT).show();
+				}
 
-				Toast.makeText(getActivity(), "Monitored2 switch is " + (isChecked ? "on" : "off"),
-						Toast.LENGTH_SHORT).show();
-				
-
+				//buttonView.setTag(0);
             }
         });
 		super.onCreateOptionsMenu(menu,inflater);

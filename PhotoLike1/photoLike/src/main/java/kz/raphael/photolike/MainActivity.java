@@ -200,7 +200,6 @@ public class MainActivity extends AppCompatActivity {
     			@Override
     			public void onPageSelected(int position) {
     				Log.i("TAG", "CARD " + position);
-                    adapter.setPosition(position);
     			}
     			
     			// This method will be invoked when the current page is scrolled
@@ -285,14 +284,11 @@ public class MainActivity extends AppCompatActivity {
 
 		@Override
 		public Fragment getItem(int position) {
-			//Log.i("TAG", "CARD " + (position));
+			Log.i("TAG", "CARD get item " + (position));
 			return SuperAwesomeCardFragment.newInstance(position);
+         //   return null;
 		}
 
-        public void setPosition(int position) {
-            //Log.i("TAG", "CARD " + (position));
-            SuperAwesomeCardFragment.setPosition(position);
-        }
 	}
 	
 	
