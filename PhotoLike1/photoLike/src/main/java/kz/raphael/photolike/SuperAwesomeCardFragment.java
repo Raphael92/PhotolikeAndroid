@@ -109,6 +109,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 		return f;
 	}
 
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -125,6 +126,8 @@ public class SuperAwesomeCardFragment extends Fragment {
 
 		/*FrameLayout*/ fl = new FrameLayout(getActivity());
 		//fl.setLayoutParams(params);
+
+
 
 		final int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources()
 				.getDisplayMetrics());
@@ -208,13 +211,16 @@ public class SuperAwesomeCardFragment extends Fragment {
 		MenuItem menuItem= menu.findItem(R.id.myswitch);
         View view = MenuItemCompat.getActionView(menuItem);
         Switch switcha = (Switch)view.findViewById(R.id.switchForActionBar);
+
         switcha.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // do anything here on check changed
-                Toast.makeText(getActivity(), "Monitored2 switch is " + (isChecked ? "on" : "off"),
-                        Toast.LENGTH_SHORT).show();
+
+				Toast.makeText(getActivity(), "Monitored2 switch is " + (isChecked ? "on" : "off"),
+						Toast.LENGTH_SHORT).show();
+				
 
             }
         });

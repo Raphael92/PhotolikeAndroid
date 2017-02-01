@@ -8,6 +8,11 @@
         android:id="@+id/switchForActionBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textOn="@string/woman"
+        android:textOff="@string/man"
+        android:layout_marginTop="15dp"
+        android:thumb="@drawable/customswitchselector"
+        android:track="@drawable/custom_track"
         android:checked="true" />
 
 </RelativeLayout>

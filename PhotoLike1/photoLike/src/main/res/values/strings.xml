@@ -5,5 +5,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <integer name="com_vk_sdk_AppId">5304541</integer>
+    <string name="man">Муж.</string>
+    <string name="woman">Жен.</string>
 
 </resources>
