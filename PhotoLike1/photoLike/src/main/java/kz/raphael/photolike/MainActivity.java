@@ -29,6 +29,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -39,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 	private static MyPagerAdapter adapter;
 	
 	private boolean isResumed = false;
-	
+
 	private static final String[] sMyScope = new String[]{
         VKScope.FRIENDS,
         VKScope.WALL,
@@ -181,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         }
         @Override
         
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
             View v = inflater.inflate(R.layout.activity_main, container, false);
             tabs = (PagerSlidingTabStrip) v.findViewById(R.id.tabs);
     		pager = (ViewPager) v.findViewById(R.id.pager);
@@ -194,12 +195,17 @@ public class MainActivity extends AppCompatActivity {
     		pager.setPageMargin(pageMargin);
 
     		tabs.setViewPager(pager);
-    		tabs.setOnPageChangeListener(new OnPageChangeListener() {
+    	/*	tabs.setOnPageChangeListener(new OnPageChangeListener() {
     			
     			// This method will be invoked when a new page becomes selected.
     			@Override
     			public void onPageSelected(int position) {
-    				Log.i("TAG", "CARD " + position);
+
+                    Log.i("TAG", "CARD " + position);
+
+                   View v = inflater.inflate(R.layout.switch_layout, null);
+                    Switch switcha = (Switch) v.findViewById(R.id.switchForActionBar);
+                    switcha.setChecked(false);
     			}
     			
     			// This method will be invoked when the current page is scrolled
@@ -215,6 +221,9 @@ public class MainActivity extends AppCompatActivity {
     				// Code goes here
     			}
     		});
+*/
+
+
             return v;
         }
     }
@@ -240,8 +249,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         return super.onCreateOptionsMenu(menu);
-    }*/
-
+    }
+*/
 	/*@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.

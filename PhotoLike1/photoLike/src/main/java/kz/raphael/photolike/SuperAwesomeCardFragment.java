@@ -23,12 +23,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -52,6 +54,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.astuetz.PagerSlidingTabStrip;
 import com.vk.sdk.api.VKApi;
 import com.vk.sdk.api.VKApiConst;
 import com.vk.sdk.api.VKError;
@@ -63,6 +66,7 @@ import com.vk.sdk.api.VKResponse;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -98,9 +102,16 @@ public class SuperAwesomeCardFragment extends Fragment {
 	private TableRow rowLoveModal;
 	//private ScrollView sv;
 	private LinearLayout ll;
+	//private LinearLayout ll1;
 	Boolean eventSwitch = false;
-	int openTabs = 0;
+	//int sex = 1;
+	SharedPreferences sPref;
 //	BroadcastReceiver br;
+
+	private PagerSlidingTabStrip tabs;
+	private ViewPager pager;
+	//private Switch switcha;
+
 	public final static String BROADCAST_ACTION = "kz.photolike.raphael";
 
 	public static SuperAwesomeCardFragment newInstance(int position) {
@@ -117,32 +128,68 @@ public class SuperAwesomeCardFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 
 		position = getArguments().getInt(ARG_POSITION);
-		Log.i("TAG", "CARD postion " + position);
+		Log.i("TAG", "CARD " + position);
 		setHasOptionsMenu(true);
+
 
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		Log.i("TAG", "обновил " + position);
 
-		Log.i("TAG", "CARD onCreateView " + openTabs);
 
+		//tabs = (PagerSlidingTabStrip) v.findViewById(R.id.tabs);
+	//	pager = (ViewPager) v.findViewById(R.id.pager);
+		//adapter = new MyPagerAdapter(getSupportFragmentManager());
+		MainActivity activity = (MainActivity) getActivity();
+		tabs = (PagerSlidingTabStrip) activity.findViewById(R.id.tabs);
+		tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+			// This method will be invoked when a new page becomes selected.
+			@Override
+			public void onPageSelected(int position) {
+
+				/*MenuItem menuItem = (MenuItem) getActivity().findViewById(R.id.myswitch);
+				View view = MenuItemCompat.getActionView(menuItem);
+				Switch switcha = (Switch)view.findViewById(R.id.switchForActionBar);
+				switcha.setChecked(false);*/
+				Log.i("TAG", "rabotaet??? " + position);
+
+			}
+
+			// This method will be invoked when the current page is scrolled
+			@Override
+			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+				// Code goes here
+			}
+
+			// Called when the scroll state changes:
+			// SCROLL_STATE_IDLE, SCROLL_STATE_DRAGGING, SCROLL_STATE_SETTLING
+			@Override
+			public void onPageScrollStateChanged(int state) {
+				// Code goes here
+			}
+		});
 		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
 		/*FrameLayout*/ fl = new FrameLayout(getActivity());
 		//fl.setLayoutParams(params);
 
-
-
 		final int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources()
 				.getDisplayMetrics());
 
 		if (position == 0) {
-
+			Log.i("TAG", "CARD postion " + position);
 			ScrollView sv = new ScrollView(getActivity());
 			sv.setLayoutParams(params);
+			sv.setTag("sv1");
 			fl.addView(sv);
 			ll = new LinearLayout(getActivity());
+			//ll1 = (LinearLayout) getActivity().getLayoutInflater().inflate(R.layout.linear_layout1, null);
+			ll.setTag("ll1");
+		//	ll.setId(0);
+			//ll.setTag("qw");
 			//ll.setLayoutParams(params);
 			ll.setOrientation(LinearLayout.VERTICAL);
 			sv.addView(ll);
@@ -151,23 +198,14 @@ public class SuperAwesomeCardFragment extends Fragment {
 			request.registerObject();
 			request.executeWithListener(mRequestListener);
 		}
-		else
+	/*	else
 		if (position == 1) {
-			/*Button button = new Button(getActivity());
-			button.setText("Exit");
-			button.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					// TODO Auto-generated method stub
-					Log.i("TAG", "CLick " + position);
-					VKSdk.logout();
-				}
-			});
-			fl.addView(button);*/
+			Log.i("TAG", "CARD postion " + position);
+
 			ScrollView sv = new ScrollView(getActivity());
 			sv.setLayoutParams(params);
 			fl.addView(sv);
-			ll = new LinearLayout(getActivity());
+			LinearLayout ll = new LinearLayout(getActivity());
 			//ll.setLayoutParams(params);
 			ll.setOrientation(LinearLayout.VERTICAL);
 			sv.addView(ll);
@@ -176,31 +214,14 @@ public class SuperAwesomeCardFragment extends Fragment {
 			request.executeWithListener(mRequestListenerGroup);
 		}
 		else {
-			/*TextView v = new TextView(getActivity());
-			params.setMargins(margin, margin, margin, margin);
-			v.setLayoutParams(params);
-			//	v.setLayoutParams(params);
-			v.setGravity(Gravity.CENTER);
-			v.setBackgroundResource(R.drawable.background_card);
-			v.setText("CARD " + (position + 1));*/
+			Log.i("TAG", "CARD postion " + position);
+
 
 			View v = getActivity().getLayoutInflater().inflate(R.layout.love_tab, null);
 			new TaskGetLoveTab(getActivity()).execute(v);
-			/*TableLayout v = new TableLayout(getActivity());
-			v.setStretchAllColumns(true);
-			TableRow titleRow = new TableRow(getActivity());
-			TextView headerDate = new TextView(getActivity());
-			headerDate.setText("Дата");
-			titleRow.addView(headerDate);
-			TextView headerTo = new TextView(getActivity());
-			headerTo.setText("Кому");
-			titleRow.addView(headerTo);
-			TextView headerLove = new TextView(getActivity());
-			headerLove.setText("Признание");
-			titleRow.addView(headerLove);
-			v.addView(titleRow);*/
+
 			fl.addView(v);
-		}
+		}*/
 		return fl;
 	}
 
@@ -230,10 +251,34 @@ public class SuperAwesomeCardFragment extends Fragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // do anything here on check changed
 				Log.i("TAG", "CARD buttonView " + buttonView.getTag());
-				if (buttonView.getTag() == 1) {
-					Toast.makeText(getActivity(), "Monitored2 switch is " + (isChecked ? "on" : "off"),
+				if (buttonView.getTag() == 1 && position == 0) {
+					Toast.makeText(getActivity(), "Monitored2 switch is " + position + " " + (isChecked ? "on" : "off"),
 							Toast.LENGTH_SHORT).show();
+					int sex = 0;
+					if (isChecked)
+						sex = 1;
+					else
+						sex = 2;
+					sPref = getActivity().getSharedPreferences(String.valueOf(position), Context.MODE_PRIVATE);
+					SharedPreferences.Editor ed = sPref.edit();
+					ed.putInt("sex", sex);
+					ed.apply();
+					VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,sex,bdate,city,photo_max_orig, photo_100","order","hints"));
+					request.registerObject();
+					request.executeWithListener(mRequestListener);
 				}
+			/*	ScrollView sv = (ScrollView) fl.findViewWithTag("sv1");
+				LinearLayout ll = (LinearLayout) sv.findViewWithTag("ll1");
+				TextView tv = new TextView(getActivity());
+				tv.setText("TEST");
+				ll.addView(tv);*/
+				/*if (position == 1) {
+					ScrollView sv = (ScrollView) fl.findViewWithTag("sv1");
+					LinearLayout ll = (LinearLayout) sv.findViewWithTag("ll1");
+					TextView tv = new TextView(getActivity());
+					tv.setText("TEST");
+					ll.addView(tv);
+				}*/
 
 				//buttonView.setTag(0);
             }
@@ -260,7 +305,8 @@ public class SuperAwesomeCardFragment extends Fragment {
 				JSONObject obj = new JSONObject(response.json.toString());
 				JSONObject obj2 = obj.getJSONObject("response");
 				JSONArray arr = obj2.getJSONArray("items");
-
+				ScrollView sv = (ScrollView) fl.findViewWithTag("sv1");
+				LinearLayout ll = (LinearLayout) sv.findViewWithTag("ll1");
 				String post_id = "не удалось";
 				for (int i = 0; i <4; i++)
 				{
@@ -330,6 +376,8 @@ public class SuperAwesomeCardFragment extends Fragment {
 			//InputStream content = (InputStream)url.getContent();
 			//Drawable d = Drawable.createFromStream(content , "src"); 
 			//iv.setImageDrawable(d);
+			ScrollView sv = (ScrollView) fl.findViewWithTag("sv1");
+			LinearLayout ll = (LinearLayout) sv.findViewWithTag("ll1");
 			ll.removeAllViews();
 			FrameLayout.LayoutParams imageViewParams = new FrameLayout.LayoutParams(
 					FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -373,22 +421,26 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 //content = (InputStream) url.getContent();
 // URL url = new URL("http://www.android.com/");   
 					// HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
-					ImageView iv2 = new ImageView(getActivity());
 
-					//iv.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0 ,bytes.length));
-					iv2.setImageDrawable(getResources().getDrawable(R.drawable.nast));
+					sPref = getActivity().getSharedPreferences("0", Context.MODE_PRIVATE);
+					int sex = sPref.getInt("sex", 0);
+					if (arr.getJSONObject(i).getInt("sex") == sex || arr.getJSONObject(i).getInt("sex") == 0) {
+						ImageView iv2 = new ImageView(getActivity());
 
-					iv2.setTag(i);
-					//simpleWaitDialog.dismiss();
-					if (i == 0) {
-						iv2.setPadding(0, 0, 0, 10);
+						//iv.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0 ,bytes.length));
+						iv2.setImageDrawable(getResources().getDrawable(R.drawable.nast));
+
+						iv2.setTag(i);
+						//simpleWaitDialog.dismiss();
+						if (i == 0) {
+							iv2.setPadding(0, 0, 0, 10);
+						} else {
+							iv2.setPadding(0, 10, 0, 10);
+						}
+						ll.addView(iv2);
+						new MyAsync(getActivity()).execute(arr.getJSONObject(i).getString("photo_100"), Integer.toString(i), "0" /*"https://pp.vk.me/c630229/v630229698/1ab4a/tEiUtwMWTyQ.jpg"*/);
 					}
-					else {
-						iv2.setPadding(0, 10, 0, 10);
-					}
-					ll.addView(iv2);
-					new MyAsync(getActivity()).execute(arr.getJSONObject(i).getString("photo_100"), Integer.toString(i), "0" /*"https://pp.vk.me/c630229/v630229698/1ab4a/tEiUtwMWTyQ.jpg"*/);
-				//new MyAsync(getActivity()).execute(arr);
+						//new MyAsync(getActivity()).execute(arr);
 					//Drawable d = Drawable.createFromStream(content , "src"); 
 					
 					/*Toast toast = Toast.makeText(getApplicationContext(),
@@ -591,89 +643,90 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 	        textView.setText(string);*/
 			//	InputStream is = null;
 			//	is = new ByteArrayInputStream(string.getBytes());
-
+			ScrollView sv = (ScrollView) fl.findViewWithTag("sv1");
+			final LinearLayout ll = (LinearLayout) sv.findViewWithTag("ll1");
 			//Drawable d = Drawable.createFromStream(is, "src");
 			if (!isGroup)
 				Log.i("TAG", "картинка = " + string.getByteCount());
 			else
 				Log.i("TAG", "картинка группы = " + string.getByteCount());
-			ImageView iv = (ImageView) ll.findViewWithTag(nomRecord); //new ImageView(getActivity());
+			if (!isGroup) {
+				ImageView iv = (ImageView) ll.findViewWithTag(nomRecord); //new ImageView(getActivity());
 
-			//iv.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0 ,bytes.length));
-			iv.setImageBitmap(string);
-			//simpleWaitDialog.dismiss();
-			if (nomRecord == 0) {
-				iv.setPadding(0, 0, 0, 10);
-			}
-			else {
-				iv.setPadding(0, 10, 0, 10);
-			}
-			//int id = getResources().getIdentifier("kz.raphael.photolike:drawable/nast.jpg", null, null);
-			//Resources res = getResources(); // need this to fetch the drawable
-			//	Drawable draw = getResources().getDrawable(R.drawable.nast);
-			//iv.setImageDrawable(draw);
-			//	iv.setImageDrawable(d);
-			//	iv.setPadding(0, -40, 0, -40);
-			//iv.setTag(nomRecord);
-
-			//ll.addView(iv);
-			iv.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-					// TODO Auto-generated method stub
-					//	Log.i("TAG", "clickListener " + v.getTag());
-
-					if (isGroup) {
-						Toast toast = Toast.makeText(getActivity(),
-								"Из группы",
-								Toast.LENGTH_SHORT);
-						toast.setGravity(Gravity.CENTER, 0, 0);
-						toast.show();
-
-						ll.removeAllViews();
-
-						VKRequest request = VKApi.groups().getMembers(VKParameters.from(VKApiConst.FIELDS, "first_name, last_name, photo_max_orig, photo_100", VKApiConst.GROUP_ID, "104052691", //id группы, у которой получаю подписчиков
-								VKApiConst.COUNT, 10));
-						request.registerObject();
-						request.executeWithListener(mRequestListener);
-
-					}
-					else {
-						AlertDialog.Builder ad = new AlertDialog.Builder(getActivity());
-						//TextView vText = (TextView) v;
-						ad.setTitle("Дефектная карточка объекта");
-						// ad.ti
-						linearlayout = getActivity().getLayoutInflater().inflate(R.layout.modal_lovepage, null);
-						tableModal = (TableLayout) linearlayout.findViewById(R.id.tableModal);
-						new GetLoveAsync(getActivity()).execute("https://photolike.info/example_test/getSexType.php");
-						ad.setView(linearlayout);
-						//  ad.setMessage(message); // сообщение
-						ad.setPositiveButton("Закрыть", new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int arg1) {
-								//	db.insertToGis(equipcode, mlat, mlon);
-								//setEquipOnMap(mlat, mlon, appTitle);
-							}
-						});
-						//        ad.setNegativeButton(button2String, new DialogInterface.OnClickListener() {
-						//          public void onClick(DialogInterface dialog, int arg1) {
-
-						//            }
-						//      });
-						ad.setCancelable(true);
-						ad.setOnCancelListener(new DialogInterface.OnCancelListener() {
-							public void onCancel(DialogInterface dialog) {
-
-							}
-						});
-						ad.show();
-					}
-
+				//iv.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0 ,bytes.length));
+				iv.setImageBitmap(string);
+				//simpleWaitDialog.dismiss();
+				if (nomRecord == 0) {
+					iv.setPadding(0, 0, 0, 10);
+				} else {
+					iv.setPadding(0, 10, 0, 10);
 				}
-			});
 
-	    	
-			
+				//int id = getResources().getIdentifier("kz.raphael.photolike:drawable/nast.jpg", null, null);
+				//Resources res = getResources(); // need this to fetch the drawable
+				//	Drawable draw = getResources().getDrawable(R.drawable.nast);
+				//iv.setImageDrawable(draw);
+				//	iv.setImageDrawable(d);
+				//	iv.setPadding(0, -40, 0, -40);
+				//iv.setTag(nomRecord);
+
+				//ll.addView(iv);
+				iv.setOnClickListener(new OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						// TODO Auto-generated method stub
+						//	Log.i("TAG", "clickListener " + v.getTag());
+
+						if (isGroup) {
+							Toast toast = Toast.makeText(getActivity(),
+									"Из группы",
+									Toast.LENGTH_SHORT);
+							toast.setGravity(Gravity.CENTER, 0, 0);
+							toast.show();
+
+							ll.removeAllViews();
+
+							VKRequest request = VKApi.groups().getMembers(VKParameters.from(VKApiConst.FIELDS, "first_name, last_name, photo_max_orig, photo_100", VKApiConst.GROUP_ID, "104052691", //id группы, у которой получаю подписчиков
+									VKApiConst.COUNT, 10));
+							request.registerObject();
+							request.executeWithListener(mRequestListener);
+
+						} else {
+							AlertDialog.Builder ad = new AlertDialog.Builder(getActivity());
+							//TextView vText = (TextView) v;
+							ad.setTitle("Дефектная карточка объекта");
+							// ad.ti
+							linearlayout = getActivity().getLayoutInflater().inflate(R.layout.modal_lovepage, null);
+							tableModal = (TableLayout) linearlayout.findViewById(R.id.tableModal);
+							new GetLoveAsync(getActivity()).execute("https://photolike.info/example_test/getSexType.php");
+							ad.setView(linearlayout);
+							//  ad.setMessage(message); // сообщение
+							ad.setPositiveButton("Закрыть", new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int arg1) {
+									//	db.insertToGis(equipcode, mlat, mlon);
+									//setEquipOnMap(mlat, mlon, appTitle);
+								}
+							});
+							//        ad.setNegativeButton(button2String, new DialogInterface.OnClickListener() {
+							//          public void onClick(DialogInterface dialog, int arg1) {
+
+							//            }
+							//      });
+							ad.setCancelable(true);
+							ad.setOnCancelListener(new DialogInterface.OnCancelListener() {
+								public void onCancel(DialogInterface dialog) {
+
+								}
+							});
+							ad.show();
+						}
+
+					}
+				});
+
+
+			}
 		/*	TextView v = new TextView(getActivity());
 			v.setGravity(Gravity.CENTER);
 			v.setBackgroundResource(R.drawable.background_card);
