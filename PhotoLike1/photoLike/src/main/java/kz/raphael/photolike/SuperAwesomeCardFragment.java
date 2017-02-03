@@ -29,6 +29,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -142,35 +143,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 		//tabs = (PagerSlidingTabStrip) v.findViewById(R.id.tabs);
 	//	pager = (ViewPager) v.findViewById(R.id.pager);
 		//adapter = new MyPagerAdapter(getSupportFragmentManager());
-		MainActivity activity = (MainActivity) getActivity();
-		tabs = (PagerSlidingTabStrip) activity.findViewById(R.id.tabs);
-		tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
-			// This method will be invoked when a new page becomes selected.
-			@Override
-			public void onPageSelected(int position) {
-
-				/*MenuItem menuItem = (MenuItem) getActivity().findViewById(R.id.myswitch);
-				View view = MenuItemCompat.getActionView(menuItem);
-				Switch switcha = (Switch)view.findViewById(R.id.switchForActionBar);
-				switcha.setChecked(false);*/
-				Log.i("TAG", "rabotaet??? " + position);
-
-			}
-
-			// This method will be invoked when the current page is scrolled
-			@Override
-			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-				// Code goes here
-			}
-
-			// Called when the scroll state changes:
-			// SCROLL_STATE_IDLE, SCROLL_STATE_DRAGGING, SCROLL_STATE_SETTLING
-			@Override
-			public void onPageScrollStateChanged(int state) {
-				// Code goes here
-			}
-		});
 		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
 		/*FrameLayout*/ fl = new FrameLayout(getActivity());
@@ -222,6 +195,56 @@ public class SuperAwesomeCardFragment extends Fragment {
 
 			fl.addView(v);
 		}*/
+
+		MainActivity activity = (MainActivity) getActivity();
+		tabs = (PagerSlidingTabStrip) activity.findViewById(R.id.tabs);
+		tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+			// This method will be invoked when a new page becomes selected.
+			@Override
+			public void onPageSelected(int position) {
+				Log.i("TAG", "gettag " + getActivity().getSupportFragmentManager().getFragments().get(0). getTag());
+
+				if (position == 0) {
+					Fragment frg = null;
+					frg = getActivity().getSupportFragmentManager().getFragments().get(1);
+					//final FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+					//ft.detach(frg);
+					//ft.attach(frg);
+					ll = (LinearLayout) frg.getView().findViewWithTag("ll1");
+					//ft.commit();
+					sPref = getActivity().getSharedPreferences("sex", Context.MODE_PRIVATE);
+					int sex = sPref.getInt("0", 0);
+					int sexMain = sPref.getInt("main", 0);
+					if (sex != sexMain) {
+						sPref = getActivity().getSharedPreferences("sex", Context.MODE_PRIVATE);
+						SharedPreferences.Editor ed = sPref.edit();
+						ed.putInt("0", sexMain);
+						ed.apply();
+
+						VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,sex,bdate,city,photo_max_orig, photo_100","order","hints"));
+						request.registerObject();
+						request.executeWithListener(mRequestListener);
+					}
+				}
+				Log.i("TAG", "rabotaet??? " + position);
+
+			}
+
+			// This method will be invoked when the current page is scrolled
+			@Override
+			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+				// Code goes here
+			}
+
+			// Called when the scroll state changes:
+			// SCROLL_STATE_IDLE, SCROLL_STATE_DRAGGING, SCROLL_STATE_SETTLING
+			@Override
+			public void onPageScrollStateChanged(int state) {
+				// Code goes here
+			}
+		});
+
 		return fl;
 	}
 
@@ -259,13 +282,24 @@ public class SuperAwesomeCardFragment extends Fragment {
 						sex = 1;
 					else
 						sex = 2;
-					sPref = getActivity().getSharedPreferences(String.valueOf(position), Context.MODE_PRIVATE);
+					sPref = getActivity().getSharedPreferences("sex", Context.MODE_PRIVATE);
 					SharedPreferences.Editor ed = sPref.edit();
-					ed.putInt("sex", sex);
+					ed.putInt(String.valueOf(position), sex);
 					ed.apply();
 					VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,sex,bdate,city,photo_max_orig, photo_100","order","hints"));
 					request.registerObject();
 					request.executeWithListener(mRequestListener);
+				}
+				if (buttonView.getTag() == 1) {
+					int sex = 0;
+					if (isChecked)
+						sex = 1;
+					else
+						sex = 2;
+					sPref = getActivity().getSharedPreferences("sex", Context.MODE_PRIVATE);
+					SharedPreferences.Editor ed = sPref.edit();
+					ed.putInt("main", sex);
+					ed.apply();
 				}
 			/*	ScrollView sv = (ScrollView) fl.findViewWithTag("sv1");
 				LinearLayout ll = (LinearLayout) sv.findViewWithTag("ll1");
@@ -376,8 +410,8 @@ public class SuperAwesomeCardFragment extends Fragment {
 			//InputStream content = (InputStream)url.getContent();
 			//Drawable d = Drawable.createFromStream(content , "src"); 
 			//iv.setImageDrawable(d);
-			ScrollView sv = (ScrollView) fl.findViewWithTag("sv1");
-			LinearLayout ll = (LinearLayout) sv.findViewWithTag("ll1");
+			/*ScrollView sv = (ScrollView) fl.findViewWithTag("sv1");
+			LinearLayout ll = (LinearLayout) sv.findViewWithTag("ll1");*/
 			ll.removeAllViews();
 			FrameLayout.LayoutParams imageViewParams = new FrameLayout.LayoutParams(
 					FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -422,13 +456,54 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 // URL url = new URL("http://www.android.com/");   
 					// HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 
-					sPref = getActivity().getSharedPreferences("0", Context.MODE_PRIVATE);
-					int sex = sPref.getInt("sex", 0);
+					sPref = getActivity().getSharedPreferences("sex", Context.MODE_PRIVATE);
+					int sex = sPref.getInt("0", 0);
 					if (arr.getJSONObject(i).getInt("sex") == sex || arr.getJSONObject(i).getInt("sex") == 0) {
 						ImageView iv2 = new ImageView(getActivity());
-
+						final String firstName = arr.getJSONObject(i).getString("first_name");
+						final String lastName = arr.getJSONObject(i).getString("last_name");
 						//iv.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0 ,bytes.length));
 						iv2.setImageDrawable(getResources().getDrawable(R.drawable.nast));
+
+						iv2.setOnClickListener(new OnClickListener() {
+
+							@Override
+							public void onClick(View v) {
+								// TODO Auto-generated method stub
+								//	Log.i("TAG", "clickListener " + v.getTag());
+
+
+									AlertDialog.Builder ad = new AlertDialog.Builder(getActivity());
+									//TextView vText = (TextView) v;
+									ad.setTitle(firstName + " " + lastName);
+									// ad.ti
+									linearlayout = getActivity().getLayoutInflater().inflate(R.layout.modal_lovepage, null);
+									tableModal = (TableLayout) linearlayout.findViewById(R.id.tableModal);
+									new GetLoveAsync(getActivity()).execute("https://photolike.info/example_test/getSexType.php");
+									ad.setView(linearlayout);
+									//  ad.setMessage(message); // сообщение
+									ad.setPositiveButton("Закрыть", new DialogInterface.OnClickListener() {
+										public void onClick(DialogInterface dialog, int arg1) {
+											//	db.insertToGis(equipcode, mlat, mlon);
+											//setEquipOnMap(mlat, mlon, appTitle);
+										}
+									});
+									//        ad.setNegativeButton(button2String, new DialogInterface.OnClickListener() {
+									//          public void onClick(DialogInterface dialog, int arg1) {
+
+									//            }
+									//      });
+									ad.setCancelable(true);
+									ad.setOnCancelListener(new DialogInterface.OnCancelListener() {
+										public void onCancel(DialogInterface dialog) {
+
+										}
+									});
+									ad.show();
+
+
+							}
+						});
 
 						iv2.setTag(i);
 						//simpleWaitDialog.dismiss();
@@ -643,8 +718,8 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 	        textView.setText(string);*/
 			//	InputStream is = null;
 			//	is = new ByteArrayInputStream(string.getBytes());
-			ScrollView sv = (ScrollView) fl.findViewWithTag("sv1");
-			final LinearLayout ll = (LinearLayout) sv.findViewWithTag("ll1");
+		//	ScrollView sv = (ScrollView) fl.findViewWithTag("sv1");
+		//	final LinearLayout ll = (LinearLayout) sv.findViewWithTag("ll1");
 			//Drawable d = Drawable.createFromStream(is, "src");
 			if (!isGroup)
 				Log.i("TAG", "картинка = " + string.getByteCount());
@@ -671,7 +746,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 				//iv.setTag(nomRecord);
 
 				//ll.addView(iv);
-				iv.setOnClickListener(new OnClickListener() {
+			/*	iv.setOnClickListener(new OnClickListener() {
 
 					@Override
 					public void onClick(View v) {
@@ -723,7 +798,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 						}
 
 					}
-				});
+				});*/
 
 
 			}
