@@ -462,6 +462,8 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 						ImageView iv2 = new ImageView(getActivity());
 						final String firstName = arr.getJSONObject(i).getString("first_name");
 						final String lastName = arr.getJSONObject(i).getString("last_name");
+						final String userid = arr.getJSONObject(i).getString("id");
+						//iv2.setTag("id" + userid);
 						//iv.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0 ,bytes.length));
 						iv2.setImageDrawable(getResources().getDrawable(R.drawable.nast));
 
@@ -471,7 +473,11 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 							public void onClick(View v) {
 								// TODO Auto-generated method stub
 								//	Log.i("TAG", "clickListener " + v.getTag());
-
+								Switch anonSwitch = new Switch(getActivity());
+								anonSwitch.setText("Анонимно");
+								TableRow.LayoutParams params = new TableRow.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+								params.setMargins(0,0,0,0);
+								anonSwitch.setGravity(Gravity.CENTER_HORIZONTAL);
 
 									AlertDialog.Builder ad = new AlertDialog.Builder(getActivity());
 									//TextView vText = (TextView) v;
@@ -479,7 +485,8 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 									// ad.ti
 									linearlayout = getActivity().getLayoutInflater().inflate(R.layout.modal_lovepage, null);
 									tableModal = (TableLayout) linearlayout.findViewById(R.id.tableModal);
-									new GetLoveAsync(getActivity()).execute("https://photolike.info/example_test/getSexType.php");
+								//	tableModal.addView(anonSwitch);
+									new GetLoveAsync(getActivity()).execute("https://photolike.info/example_test/getSexType.php", userid);
 									ad.setView(linearlayout);
 									//  ad.setMessage(message); // сообщение
 									ad.setPositiveButton("Закрыть", new DialogInterface.OnClickListener() {
@@ -813,6 +820,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 
 	public class GetLoveAsync extends AsyncTask<String, Void, JSONArray> {
 		private Activity loveActivity;
+
 		public GetLoveAsync(Activity activity) {
 			loveActivity = activity;
 		}
@@ -834,7 +842,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 				// HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 
 				URL url=new URL(params[0]);
-
+				String userId = params[1];
 				SSLContext context = SSLContext.getInstance("TLS");
 				// context.init(null, tmf.getTrustManagers(), null);
 
@@ -843,7 +851,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 				Log.i("log_tag", "url get = " + url);
 				String agent="Applet";
 				//  String query="query=" + r[0];
-				String query = "viewer_id=186332067&whom_id=237079306&auth_key=eb2ca2e8df6ffc18daf33d07bdf119ac";
+				String query = "viewer_id=186332067&auth_key=eb2ca2e8df6ffc18daf33d07bdf119ac&whom_id=" + userId;
 				String type="application/x-www-form-urlencoded";
 			//	conn=(HttpsURLConnection)url.openConnection();
 
@@ -966,8 +974,13 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 				   //     rowRepairName.setBackgroundResource(R.drawable.roundtable);
 				        
 				        ImageView ImageLove = new ImageView(getActivity());*/
-					new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" + json_data.getString("imgUrl"), Integer.toString(i));
-				     /*   rowLoveModal.addView(ImageLove);
+					if (json_data.getString("wantSex").equals("1") && json_data.getString("mutualSex").equals("1"))
+						new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" + json_data.getString("imgUrl"), Integer.toString(i));
+				    else if (json_data.getString("wantSex").equals("1"))
+						new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" + json_data.getString("imgUrl_YesNo"), Integer.toString(i));
+					else
+						new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" + json_data.getString("imgUrl_No"), Integer.toString(i));
+					/*   rowLoveModal.addView(ImageLove);
 
 						tableModal.addView(rowLoveModal);
                		}

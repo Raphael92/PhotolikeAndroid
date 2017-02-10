@@ -17,9 +17,29 @@
 		    android:layout_height="wrap_content"
 		    android:background="@drawable/background_modal"
 		    android:stretchColumns="*" >
-   	 	</TableLayout>     
+
+
+
+			   <Switch
+                   android:id="@+id/switch1"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:textOn="@string/woman"
+                   android:textOff="@string/man"
+                   android:layout_marginTop="5dp"
+                   android:thumb="@drawable/customswitchselector"
+                   android:track="@drawable/custom_track"
+                   android:text="Анонимно"
+                   android:checked="false"
+                   android:gravity="center_vertical|center_horizontal"
+				   android:layout_marginRight="40dp"
+				   android:layout_marginLeft="40dp" />
+
+
+	   </TableLayout>
    	 	        
        </LinearLayout>
     </ScrollView>
+
 
 </LinearLayout>
