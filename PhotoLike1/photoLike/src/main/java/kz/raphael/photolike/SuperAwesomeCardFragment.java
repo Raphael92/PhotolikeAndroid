@@ -491,6 +491,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 									//  ad.setMessage(message); // сообщение
 									ad.setPositiveButton("Закрыть", new DialogInterface.OnClickListener() {
 										public void onClick(DialogInterface dialog, int arg1) {
+
 											//	db.insertToGis(equipcode, mlat, mlon);
 											//setEquipOnMap(mlat, mlon, appTitle);
 										}
@@ -818,11 +819,154 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 		}
 	}
 
-	public class GetLoveAsync extends AsyncTask<String, Void, JSONArray> {
-		private Activity loveActivity;
+	public class SexClickAsync extends AsyncTask<String, Void, Boolean> {
+		//private Activity loveActivity;
 
+		public SexClickAsync(Activity activity) {
+			//loveActivity = activity;
+		}
+
+		@Override
+		protected Boolean doInBackground(String... params) {
+			String result = "";
+			Log.i("log_tag", "url =2 ");
+			InputStream is = null;
+
+			//HttpsURLConnection conn=null;
+			try{
+
+				//	content = (InputStream)url.getContent();
+
+//	URLConnection urlConnection = url.openConnection();
+//content = (InputStream) url.getContent();
+// URL url = new URL("http://www.android.com/");
+				// HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+
+				URL url=new URL(params[0]);
+				String userId = params[1];
+				String anonim = params[2];
+				String sexType = params[3];
+				String sexNew = params[4];
+				SSLContext context = SSLContext.getInstance("TLS");
+				// context.init(null, tmf.getTrustManagers(), null);
+
+
+
+				Log.i("log_tag", "url get = " + url);
+				String agent="Applet";
+				//  String query="query=" + r[0];
+				String query = "viewer_id=186332067&auth_key=eb2ca2e8df6ffc18daf33d07bdf119ac&whom_id=" + userId +
+						"&anonim=" + anonim + "&type=" + sexType + "&New=" + sexNew;
+				String type="application/x-www-form-urlencoded";
+				//	conn=(HttpsURLConnection)url.openConnection();
+
+				// Load CAs from an InputStream
+// (could be from a resource or ByteArrayInputStream or ...)
+				CertificateFactory cf = CertificateFactory.getInstance("X.509");
+// From https://www.washington.edu/itconnect/security/ca/load-der.crt
+				InputStream caInput = SuperAwesomeCardFragment.this.getResources().openRawResource(R.raw.photolike);//new BufferedInputStream(new FileInputStream("photolike.crt"));
+				Certificate ca;
+				try {
+					ca = cf.generateCertificate(caInput);
+					System.out.println("ca=" + ((X509Certificate) ca).getSubjectDN());
+				} finally {
+					caInput.close();
+				}
+
+// Create a KeyStore containing our trusted CAs
+				String keyStoreType = KeyStore.getDefaultType();
+				KeyStore keyStore = KeyStore.getInstance(keyStoreType);
+				keyStore.load(null, null);
+				keyStore.setCertificateEntry("ca", ca);
+
+// Create a TrustManager that trusts the CAs in our KeyStore
+				String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+				TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
+				tmf.init(keyStore);
+
+// Create an SSLContext that uses our TrustManager
+				//SSLContext context = SSLContext.getInstance("TLS");
+				context.init(null, tmf.getTrustManagers(), null);
+
+// Tell the URLConnection to use a SocketFactory from our SSLContext
+				//URL url = new URL("https://certs.cac.washington.edu/CAtest/");
+				HttpsURLConnection conn =
+						(HttpsURLConnection)url.openConnection();
+				conn.setSSLSocketFactory(context.getSocketFactory());
+				//InputStream in = conn.getInputStream();
+				//copyInputStreamToOutputStream(in, System.out);
+				Log.i("log_tag", "poka rabotaet");
+				//InputStream in = conn.getInputStream();
+				conn.setDoInput(true);
+				conn.setDoOutput(true);
+				Log.i("log_tag", "poka rabotaet1 ");
+				conn.setRequestMethod("POST");
+				conn.setRequestProperty( "User-Agent", agent );
+				conn.setRequestProperty( "Content-Type", type );
+				//conn.setRequestProperty("viewer_id", "raphael_z");
+				conn.setRequestProperty( "Content-Length", ""+query.length());
+				Log.i("log_tag", "poka rabotaet2 ");
+				OutputStream out=conn.getOutputStream();
+				out.write(query.getBytes());
+				Log.i("log_tag", "poka rabotaet3");
+				is = conn.getInputStream();
+				Log.i("log_tag", "rabotaet");
+			}catch(Exception e){
+				e.printStackTrace();
+				Log.e("log_tag", "Error in http connection "+e.toString());
+			}/*finally{
+		    	conn.disconnect();
+		    }*/
+
+
+			//convert response to string
+			try{
+				BufferedReader reader = new BufferedReader(new InputStreamReader(is/*,"iso-8859-1"*/),8);
+				StringBuilder sb = new StringBuilder();
+				String line = null;
+				//Log.i("log_tag", "proverka 1" + reader.readLine());
+				while ((line = reader.readLine()) != null) {
+					Log.i("log_tag", "proverka 11");
+					sb.append(line + "\n");
+					Log.i("log_tag","proverka2 " + sb.toString());
+				}
+				is.close();
+				Log.i("log_tag","proverka " + sb.toString());
+				result=sb.toString();
+			}catch(Exception e){
+				Log.e("log_tag", "Error converting result "+e.toString());
+			}
+
+			//parse json data
+			/*JSONArray jArray = null;
+			try{
+				jArray = new JSONArray(result);
+			}
+			catch(JSONException e){
+				Log.e("log_tag", "Error parsing data "+e.toString());
+			}
+			return jArray;*/
+			return true;
+		}
+
+		public void onPostExecute(Boolean result) {
+			Toast.makeText(getActivity(), "click",
+					Toast.LENGTH_SHORT).show();
+				/*	if (json_data.getString("wantSex").equals("1") && json_data.getString("mutualSex").equals("1"))
+						new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" + json_data.getString("imgUrl"), Integer.toString(i));
+					else if (json_data.getString("wantSex").equals("1"))
+						new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" + json_data.getString("imgUrl_YesNo"), Integer.toString(i));
+					else
+						new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" + json_data.getString("imgUrl_No"), Integer.toString(i));
+*/
+		}
+	}
+
+	public class GetLoveAsync extends AsyncTask<String, Void, JSONArray> {
+		//private Activity loveActivity;
+		private String userId = "0";
 		public GetLoveAsync(Activity activity) {
-			loveActivity = activity;
+		//	loveActivity = activity;
 		}
 
 		@Override
@@ -842,7 +986,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 				// HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 
 				URL url=new URL(params[0]);
-				String userId = params[1];
+				userId = params[1];
 				SSLContext context = SSLContext.getInstance("TLS");
 				// context.init(null, tmf.getTrustManagers(), null);
 
@@ -975,11 +1119,14 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 				        
 				        ImageView ImageLove = new ImageView(getActivity());*/
 					if (json_data.getString("wantSex").equals("1") && json_data.getString("mutualSex").equals("1"))
-						new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" + json_data.getString("imgUrl"), Integer.toString(i));
+						new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" +
+								json_data.getString("imgUrl"), Integer.toString(i), userId, "0");
 				    else if (json_data.getString("wantSex").equals("1"))
-						new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" + json_data.getString("imgUrl_YesNo"), Integer.toString(i));
+						new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" +
+								json_data.getString("imgUrl_YesNo"), Integer.toString(i), userId, "0");
 					else
-						new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" + json_data.getString("imgUrl_No"), Integer.toString(i));
+						new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" +
+								json_data.getString("imgUrl_No"), Integer.toString(i), userId, "1");
 					/*   rowLoveModal.addView(ImageLove);
 
 						tableModal.addView(rowLoveModal);
@@ -1003,6 +1150,8 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 		private Activity loveImageActivity;
 		private ImageView ImageLove;
 		private int nomRec = 0;
+		private String userId = "0";
+		private String sexNew = "0";
 		public GetImageLoveAsync(Activity activity) {
 			loveImageActivity = activity;
 		}
@@ -1013,7 +1162,8 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 			InputStream is = null;
 
 			nomRec = Integer.parseInt(params[1]);
-
+			userId = params[2];
+			sexNew = params[3];
 			//	if (i % 2 == 0) {
        		/*	rowLoveModal = new TableRow(getActivity());
        			ImageLove = new ImageView(getActivity());
@@ -1091,6 +1241,13 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 				rowLoveModal = new TableRow(getActivity());
 				ImageLove = new ImageView(getActivity());
 				ImageLove.setImageBitmap(string);
+				ImageLove.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						new SexClickAsync(getActivity()).execute("https://photolike.info/example_test/sexClick.php",
+								userId, "0", String.valueOf((nomRec + 1)), sexNew);
+					}
+				});
 				rowLoveModal.addView(ImageLove);
 				tableModal.addView(rowLoveModal); //здесь ошибка*/
 			}
