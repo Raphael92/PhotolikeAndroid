@@ -171,14 +171,14 @@ public class SuperAwesomeCardFragment extends Fragment {
 			request.registerObject();
 			request.executeWithListener(mRequestListener);
 		}
-	/*	else
+		else
 		if (position == 1) {
 			Log.i("TAG", "CARD postion " + position);
 
 			ScrollView sv = new ScrollView(getActivity());
 			sv.setLayoutParams(params);
 			fl.addView(sv);
-			LinearLayout ll = new LinearLayout(getActivity());
+			ll = new LinearLayout(getActivity());
 			//ll.setLayoutParams(params);
 			ll.setOrientation(LinearLayout.VERTICAL);
 			sv.addView(ll);
@@ -194,7 +194,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 			new TaskGetLoveTab(getActivity()).execute(v);
 
 			fl.addView(v);
-		}*/
+		}
 
 		MainActivity activity = (MainActivity) getActivity();
 		tabs = (PagerSlidingTabStrip) activity.findViewById(R.id.tabs);
@@ -339,8 +339,8 @@ public class SuperAwesomeCardFragment extends Fragment {
 				JSONObject obj = new JSONObject(response.json.toString());
 				JSONObject obj2 = obj.getJSONObject("response");
 				JSONArray arr = obj2.getJSONArray("items");
-				ScrollView sv = (ScrollView) fl.findViewWithTag("sv1");
-				LinearLayout ll = (LinearLayout) sv.findViewWithTag("ll1");
+				/*ScrollView sv = (ScrollView) fl.findViewWithTag("sv1");
+				LinearLayout ll = (LinearLayout) sv.findViewWithTag("ll1");*/
 				String post_id = "не удалось";
 				for (int i = 0; i <4; i++)
 				{
@@ -363,6 +363,23 @@ public class SuperAwesomeCardFragment extends Fragment {
 
 					//iv.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0 ,bytes.length));
 					iv2.setImageDrawable(getResources().getDrawable(R.drawable.nast));
+					iv2.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							Toast toast = Toast.makeText(getActivity(),
+									"Из группы",
+									Toast.LENGTH_SHORT);
+							toast.setGravity(Gravity.CENTER, 0, 0);
+							toast.show();
+
+							//ll.removeAllViews();
+
+							VKRequest request = VKApi.groups().getMembers(VKParameters.from(VKApiConst.FIELDS, "first_name, sex, last_name, photo_max_orig, photo_100", VKApiConst.GROUP_ID, "104052691", //id группы, у которой получаю подписчиков
+									VKApiConst.COUNT, 10));
+							request.registerObject();
+							request.executeWithListener(mRequestListener);
+						}
+					});
 					//if (i ==0)
 						iv2.setTag(i);
 					//simpleWaitDialog.dismiss();
@@ -473,11 +490,11 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 							public void onClick(View v) {
 								// TODO Auto-generated method stub
 								//	Log.i("TAG", "clickListener " + v.getTag());
-								Switch anonSwitch = new Switch(getActivity());
+								/*Switch anonSwitch = new Switch(getActivity());
 								anonSwitch.setText("Анонимно");
 								TableRow.LayoutParams params = new TableRow.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 								params.setMargins(0,0,0,0);
-								anonSwitch.setGravity(Gravity.CENTER_HORIZONTAL);
+								anonSwitch.setGravity(Gravity.CENTER_HORIZONTAL);*/
 
 									AlertDialog.Builder ad = new AlertDialog.Builder(getActivity());
 									//TextView vText = (TextView) v;
@@ -733,7 +750,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 				Log.i("TAG", "картинка = " + string.getByteCount());
 			else
 				Log.i("TAG", "картинка группы = " + string.getByteCount());
-			if (!isGroup) {
+		//	if (!isGroup) {
 				ImageView iv = (ImageView) ll.findViewWithTag(nomRecord); //new ImageView(getActivity());
 
 				//iv.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0 ,bytes.length));
@@ -809,7 +826,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 				});*/
 
 
-			}
+		//	}
 		/*	TextView v = new TextView(getActivity());
 			v.setGravity(Gravity.CENTER);
 			v.setBackgroundResource(R.drawable.background_card);
@@ -819,15 +836,17 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 		}
 	}
 
-	public class SexClickAsync extends AsyncTask<String, Void, Boolean> {
+	public class SexClickAsync extends AsyncTask<String, Void, String> {
 		//private Activity loveActivity;
-
+		String sexType = "0";
+		String userId = "0";
+		String sexNew = "0";
 		public SexClickAsync(Activity activity) {
 			//loveActivity = activity;
 		}
 
 		@Override
-		protected Boolean doInBackground(String... params) {
+		protected String doInBackground(String... params) {
 			String result = "";
 			Log.i("log_tag", "url =2 ");
 			InputStream is = null;
@@ -843,10 +862,10 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 				// HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 
 				URL url=new URL(params[0]);
-				String userId = params[1];
+				userId = params[1];
 				String anonim = params[2];
-				String sexType = params[3];
-				String sexNew = params[4];
+				sexType = params[3];
+				sexNew = params[4];
 				SSLContext context = SSLContext.getInstance("TLS");
 				// context.init(null, tmf.getTrustManagers(), null);
 
@@ -946,12 +965,18 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 				Log.e("log_tag", "Error parsing data "+e.toString());
 			}
 			return jArray;*/
-			return true;
+			return result;
 		}
 
-		public void onPostExecute(Boolean result) {
+		public void onPostExecute(String result) {
 			Toast.makeText(getActivity(), "click",
 					Toast.LENGTH_SHORT).show();
+			int num = Integer.parseInt(sexType) - 1;
+			int newType = 1 - Integer.parseInt(sexNew);
+			/*new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" +
+					json_data.getString("imgUrl"), Integer.toString(i), userId, "0");*/
+			new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/" + result, Integer.toString(num),
+					userId, Integer.toString(newType), "0");
 				/*	if (json_data.getString("wantSex").equals("1") && json_data.getString("mutualSex").equals("1"))
 						new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" + json_data.getString("imgUrl"), Integer.toString(i));
 					else if (json_data.getString("wantSex").equals("1"))
@@ -1120,13 +1145,13 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 				        ImageView ImageLove = new ImageView(getActivity());*/
 					if (json_data.getString("wantSex").equals("1") && json_data.getString("mutualSex").equals("1"))
 						new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" +
-								json_data.getString("imgUrl"), Integer.toString(i), userId, "0");
+								json_data.getString("imgUrl"), Integer.toString(i), userId, "0", "1");
 				    else if (json_data.getString("wantSex").equals("1"))
 						new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" +
-								json_data.getString("imgUrl_YesNo"), Integer.toString(i), userId, "0");
+								json_data.getString("imgUrl_YesNo"), Integer.toString(i), userId, "0", "1");
 					else
 						new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" +
-								json_data.getString("imgUrl_No"), Integer.toString(i), userId, "1");
+								json_data.getString("imgUrl_No"), Integer.toString(i), userId, "1", "1");
 					/*   rowLoveModal.addView(ImageLove);
 
 						tableModal.addView(rowLoveModal);
@@ -1152,6 +1177,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 		private int nomRec = 0;
 		private String userId = "0";
 		private String sexNew = "0";
+		private String newModal = "1";
 		public GetImageLoveAsync(Activity activity) {
 			loveImageActivity = activity;
 		}
@@ -1164,6 +1190,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 			nomRec = Integer.parseInt(params[1]);
 			userId = params[2];
 			sexNew = params[3];
+			newModal = params[4];
 			//	if (i % 2 == 0) {
        		/*	rowLoveModal = new TableRow(getActivity());
        			ImageLove = new ImageView(getActivity());
@@ -1237,24 +1264,62 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 			//	iv.setImageBitmap(string);
 			//Log.i("log_tag", "bitmap " + string);
 			//ImageLove.setImageBitmap(string);
-			if (nomRec % 2 == 0) {
-				rowLoveModal = new TableRow(getActivity());
-				ImageLove = new ImageView(getActivity());
-				ImageLove.setImageBitmap(string);
-				ImageLove.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						new SexClickAsync(getActivity()).execute("https://photolike.info/example_test/sexClick.php",
-								userId, "0", String.valueOf((nomRec + 1)), sexNew);
-					}
-				});
-				rowLoveModal.addView(ImageLove);
-				tableModal.addView(rowLoveModal); //здесь ошибка*/
+			if (newModal.equals("1")) {
+				if (nomRec % 2 == 0) {
+					rowLoveModal = new TableRow(getActivity());
+					rowLoveModal.setTag("rowmodal" + nomRec);
+					ImageLove = new ImageView(getActivity());
+					ImageLove.setTag("modal" + nomRec);
+					ImageLove.setImageBitmap(string);
+					ImageLove.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View v) {
+
+							new SexClickAsync(getActivity()).execute("https://photolike.info/example_test/sexClick.php",
+									userId, "0", String.valueOf((nomRec + 1)), sexNew);
+						}
+					});
+					rowLoveModal.addView(ImageLove);
+					tableModal.addView(rowLoveModal); //здесь ошибка*/
+				} else {
+					ImageLove = new ImageView(getActivity());
+					ImageLove.setTag("modal" + nomRec);
+					ImageLove.setImageBitmap(string);
+					ImageLove.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View v) {
+
+							new SexClickAsync(getActivity()).execute("https://photolike.info/example_test/sexClick.php",
+									userId, "0", String.valueOf((nomRec + 1)), sexNew);
+						}
+					});
+					rowLoveModal.addView(ImageLove);
+				}
 			}
 			else {
-				ImageLove = new ImageView(getActivity());
-				ImageLove.setImageBitmap(string);
-				rowLoveModal.addView(ImageLove);
+				if (nomRec % 2 == 0) {
+					TableRow tr = (TableRow) tableModal.findViewWithTag("rowmodal" + nomRec);
+					ImageLove = (ImageView) tr.findViewWithTag("modal" + nomRec);
+					ImageLove.setImageBitmap(string);
+					ImageLove.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							new SexClickAsync(getActivity()).execute("https://photolike.info/example_test/sexClick.php",
+									userId, "0", String.valueOf((nomRec + 1)), sexNew);
+						}
+					});
+				} else {
+					TableRow tr = (TableRow) tableModal.findViewWithTag("rowmodal" + (nomRec - 1));
+					ImageLove = (ImageView) tr.findViewWithTag("modal" + nomRec);
+					ImageLove.setImageBitmap(string);
+					ImageLove.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							new SexClickAsync(getActivity()).execute("https://photolike.info/example_test/sexClick.php",
+									userId, "0", String.valueOf((nomRec + 1)), sexNew);
+						}
+					});
+				}
 			}
 		}
 
