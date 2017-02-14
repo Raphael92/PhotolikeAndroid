@@ -198,6 +198,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 
 		MainActivity activity = (MainActivity) getActivity();
 		tabs = (PagerSlidingTabStrip) activity.findViewById(R.id.tabs);
+
 		tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
 			// This method will be invoked when a new page becomes selected.
@@ -334,7 +335,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 			FrameLayout.LayoutParams imageViewParams = new FrameLayout.LayoutParams(
 					FrameLayout.LayoutParams.WRAP_CONTENT,
 					FrameLayout.LayoutParams.WRAP_CONTENT);
-
+			ll.removeAllViews();
 			try {
 				JSONObject obj = new JSONObject(response.json.toString());
 				JSONObject obj2 = obj.getJSONObject("response");
@@ -342,7 +343,8 @@ public class SuperAwesomeCardFragment extends Fragment {
 				/*ScrollView sv = (ScrollView) fl.findViewWithTag("sv1");
 				LinearLayout ll = (LinearLayout) sv.findViewWithTag("ll1");*/
 				String post_id = "не удалось";
-				for (int i = 0; i <4; i++)
+
+				for (int i = 0; i < arr.length(); i++)
 				{
 					//post_id = arr.getJSONObject(i).getString("first_name");
 				/*	Log.i("TAG", "post_id = " + arr.getJSONObject(i).getString("photo_100"));
@@ -360,23 +362,19 @@ public class SuperAwesomeCardFragment extends Fragment {
 					InputStream content = null;*/
 
 					ImageView iv2 = new ImageView(getActivity());
-
+					final String groupId = arr.getJSONObject(i).getString("id");
+					final String groupName = arr.getJSONObject(i).getString("name");
 					//iv.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0 ,bytes.length));
 					iv2.setImageDrawable(getResources().getDrawable(R.drawable.nast));
 					iv2.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							Toast toast = Toast.makeText(getActivity(),
-									"Из группы",
-									Toast.LENGTH_SHORT);
-							toast.setGravity(Gravity.CENTER, 0, 0);
-							toast.show();
-
 							//ll.removeAllViews();
 
-							VKRequest request = VKApi.groups().getMembers(VKParameters.from(VKApiConst.FIELDS, "first_name, sex, last_name, photo_max_orig, photo_100", VKApiConst.GROUP_ID, "104052691", //id группы, у которой получаю подписчиков
+							VKRequest request = VKApi.groups().getMembers(VKParameters.from(VKApiConst.FIELDS, "first_name, sex, last_name, photo_max_orig, photo_100", VKApiConst.GROUP_ID, groupId, //id группы, у которой получаю подписчиков
 									VKApiConst.COUNT, 10));
 							request.registerObject();
+							request.addExtraParameter("groupName", groupName);
 							request.executeWithListener(mRequestListener);
 						}
 					});
@@ -429,6 +427,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 			//iv.setImageDrawable(d);
 			/*ScrollView sv = (ScrollView) fl.findViewWithTag("sv1");
 			LinearLayout ll = (LinearLayout) sv.findViewWithTag("ll1");*/
+
 			ll.removeAllViews();
 			FrameLayout.LayoutParams imageViewParams = new FrameLayout.LayoutParams(
 					FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -440,6 +439,25 @@ public class SuperAwesomeCardFragment extends Fragment {
 				//JSONArray arr = obj.getJSONArray("response");
 				JSONObject obj2 = obj.getJSONObject("response");
 				JSONArray arr = obj2.getJSONArray("items");
+
+				if (response.request.methodName.equals("groups.getMembers")) {
+					TextView groupName = new TextView(getActivity());
+					groupName.setText(response.request.getMethodParameters().get("groupName").toString());
+					groupName.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							Toast toast = Toast.makeText(getActivity(),
+									"по названию",
+									Toast.LENGTH_SHORT);
+							toast.setGravity(Gravity.CENTER, 0, 0);
+							toast.show();
+							VKRequest request = VKApi.groups().get(VKParameters.from(VKApiConst.FIELDS, "id, name, photo_100", VKApiConst.EXTENDED, 1));
+							request.registerObject();
+							request.executeWithListener(mRequestListenerGroup);
+						}
+					});
+					ll.addView(groupName);
+				}
 
 				//String post_id = "не удалось";
 				for (int i = 0; i < arr.length(); i++)
