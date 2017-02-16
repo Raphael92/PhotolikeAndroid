@@ -43,6 +43,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
@@ -111,6 +112,11 @@ public class SuperAwesomeCardFragment extends Fragment {
 
 	private PagerSlidingTabStrip tabs;
 	private ViewPager pager;
+	private int numPage = 0;
+	private Boolean isScroll = true;
+	private int groupOffset = 0;
+	private String globalGroupId = "0";
+	private String globalGroupName = "";
 	//private Switch switcha;
 
 	public final static String BROADCAST_ACTION = "kz.photolike.raphael";
@@ -154,13 +160,44 @@ public class SuperAwesomeCardFragment extends Fragment {
 
 		if (position == 0) {
 			Log.i("TAG", "CARD postion " + position);
-			ScrollView sv = new ScrollView(getActivity());
+			final ScrollView sv = new ScrollView(getActivity());
+			sv.setTag("sv0");
+			sv.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+				@Override
+				public void onScrollChanged() {
+					//  int scrollY = rootScrollView.getScrollY(); // For ScrollView
+					//  int scrollX = rootScrollView.getScrollX(); // For HorizontalScrollView
+					//  View view = (View) myScroll.getChildAt(myScroll.getChildCount()-1);
+					// int diff = (view.getBottom()-(myScroll.getHeight()+myScroll.getScrollY()+view.getBottom()));
+					/*if(sv.getScrollY() == 0 ) {
+						Toast.makeText(getActivity(), "Скролл",
+								Toast.LENGTH_SHORT).show();
+					}*/
+					View view = (View) sv.getChildAt(sv.getChildCount()-1);
+					int diff = (view.getBottom()-(sv.getHeight()+sv.getScrollY()+view.getTop()));
+					if( diff == 0 && /*numPage == 0 && view != null*/ isScroll){
+						Toast.makeText(getActivity(), "Вкладка 1 " + numPage,
+								Toast.LENGTH_SHORT).show();
+						sv.scrollBy(0,-5);
+						isScroll = false;
+					/*	sv.post(new Runnable() {
+							@Override
+							public void run() {
+								sv.fullScroll(ScrollView.FOCUS_DOWN);
+
+							}
+						});*/
+
+					}
+					// DO SOMETHING WITH THE SCROLL COORDINATES
+				}
+			});
 			sv.setLayoutParams(params);
 			sv.setTag("sv1");
 			fl.addView(sv);
 			ll = new LinearLayout(getActivity());
 			//ll1 = (LinearLayout) getActivity().getLayoutInflater().inflate(R.layout.linear_layout1, null);
-			ll.setTag("ll1");
+			ll.setTag("ll0");
 		//	ll.setId(0);
 			//ll.setTag("qw");
 			//ll.setLayoutParams(params);
@@ -169,20 +206,60 @@ public class SuperAwesomeCardFragment extends Fragment {
 
 			VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,sex,bdate,city,photo_max_orig, photo_100","order","hints"));
 			request.registerObject();
+			request.addExtraParameter("position", position);
 			request.executeWithListener(mRequestListener);
 		}
 		else
 		if (position == 1) {
 			Log.i("TAG", "CARD postion " + position);
 
-			ScrollView sv = new ScrollView(getActivity());
+			final ScrollView sv = new ScrollView(getActivity());
+			sv.setTag("sv1");
+
+			sv.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+				@Override
+				public void onScrollChanged() {
+					//  int scrollY = rootScrollView.getScrollY(); // For ScrollView
+					//  int scrollX = rootScrollView.getScrollX(); // For HorizontalScrollView
+					//  View view = (View) myScroll.getChildAt(myScroll.getChildCount()-1);
+					// int diff = (view.getBottom()-(myScroll.getHeight()+myScroll.getScrollY()+view.getBottom()));
+					/*if(sv.getScrollY() == 0 ) {
+						Toast.makeText(getActivity(), "Скролл",
+								Toast.LENGTH_SHORT).show();
+					}*/
+					View view = (View) sv.getChildAt(sv.getChildCount()-1);
+					int diff = (view.getBottom()-(sv.getHeight()+sv.getScrollY()+view.getTop()));
+					if( diff == 0 && /*numPage == 1 && view != null*/ isScroll ){
+						Toast.makeText(getActivity(), "Скролл " + numPage,
+								Toast.LENGTH_SHORT).show();
+						sv.scrollBy(0,-5);
+						isScroll = false;
+						VKRequest request = VKApi.groups().get(VKParameters.from(VKApiConst.FIELDS, "id, name, photo_100",
+								VKApiConst.EXTENDED, 1, VKApiConst.OFFSET, groupOffset, VKApiConst.COUNT, 10));
+						request.registerObject();
+						request.executeWithListener(mRequestListenerGroup);
+						/*sv.post(new Runnable() {
+							@Override
+							public void run() {
+								sv.fullScroll(ScrollView.FOCUS_DOWN + 1);
+
+							}
+						});*/
+
+					}
+					// DO SOMETHING WITH THE SCROLL COORDINATES
+				}
+			});
+
 			sv.setLayoutParams(params);
 			fl.addView(sv);
 			ll = new LinearLayout(getActivity());
+			ll.setTag("ll1");
 			//ll.setLayoutParams(params);
 			ll.setOrientation(LinearLayout.VERTICAL);
 			sv.addView(ll);
-			VKRequest request = VKApi.groups().get(VKParameters.from(VKApiConst.FIELDS, "id, name, photo_100", VKApiConst.EXTENDED, 1));
+			VKRequest request = VKApi.groups().get(VKParameters.from(VKApiConst.FIELDS, "id, name, photo_100",
+					VKApiConst.EXTENDED, 1, VKApiConst.OFFSET, 0, VKApiConst.COUNT, 10));
 			request.registerObject();
 			request.executeWithListener(mRequestListenerGroup);
 		}
@@ -205,14 +282,39 @@ public class SuperAwesomeCardFragment extends Fragment {
 			@Override
 			public void onPageSelected(int position) {
 				Log.i("TAG", "gettag " + getActivity().getSupportFragmentManager().getFragments().get(0). getTag());
-
+				numPage = position;
 				if (position == 0) {
 					Fragment frg = null;
 					frg = getActivity().getSupportFragmentManager().getFragments().get(1);
+
 					//final FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
 					//ft.detach(frg);
 					//ft.attach(frg);
-					ll = (LinearLayout) frg.getView().findViewWithTag("ll1");
+					ll = (LinearLayout) frg.getView().findViewWithTag("ll0");
+
+					Fragment frg2 = null;
+					frg2 = getActivity().getSupportFragmentManager().getFragments().get(2);
+					LinearLayout ll2 = (LinearLayout) frg2.getView().findViewWithTag("ll1");
+					/*final ScrollView sv = (ScrollView) ll2.getParent();
+					sv.post(new Runnable() {
+						@Override
+						public void run() {
+							sv.fullScroll(ScrollView.FOCUS_UP);
+
+						}
+					});*/
+					/*sv.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+						@Override
+						public void onScrollChanged() {
+							View view = (View) sv.getChildAt(sv.getChildCount()-1);
+							int diff = (view.getBottom()-(sv.getHeight()+sv.getScrollY()+view.getTop()));
+							if( diff == 0 ) {
+								Toast.makeText(getActivity(), "Скролл 2",
+										Toast.LENGTH_SHORT).show();
+							}
+						}
+					});*/
+
 					//ft.commit();
 					sPref = getActivity().getSharedPreferences("sex", Context.MODE_PRIVATE);
 					int sex = sPref.getInt("0", 0);
@@ -225,8 +327,28 @@ public class SuperAwesomeCardFragment extends Fragment {
 
 						VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,sex,bdate,city,photo_max_orig, photo_100","order","hints"));
 						request.registerObject();
+						request.addExtraParameter("position", position);
 						request.executeWithListener(mRequestListener);
 					}
+				}
+				else if (position == 1) {
+					/*Fragment frg2 = null;
+					frg2 = getActivity().getSupportFragmentManager().getFragments().get(1);
+					LinearLayout ll2 = (LinearLayout) frg2.getView().findViewWithTag("ll0");
+					final ScrollView sv = (ScrollView) ll2.getParent();
+					sv.post(new Runnable() {
+						@Override
+						public void run() {
+							sv.fullScroll(ScrollView.FOCUS_UP);
+
+						}
+					});*/
+				/*	sv.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+						@Override
+						public void onScrollChanged() {
+
+						}
+					});*/
 				}
 				Log.i("TAG", "rabotaet??? " + position);
 
@@ -289,6 +411,26 @@ public class SuperAwesomeCardFragment extends Fragment {
 					ed.apply();
 					VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,sex,bdate,city,photo_max_orig, photo_100","order","hints"));
 					request.registerObject();
+					request.addExtraParameter("position", position);
+					request.executeWithListener(mRequestListener);
+				}
+				if (buttonView.getTag() == 1 && position == 1 && !globalGroupId.equals("0")) {
+					Toast.makeText(getActivity(), "Monitored2 switch is " + position + " " + (isChecked ? "on" : "off"),
+							Toast.LENGTH_SHORT).show();
+					int sex = 0;
+					if (isChecked)
+						sex = 1;
+					else
+						sex = 2;
+					sPref = getActivity().getSharedPreferences("sex", Context.MODE_PRIVATE);
+					SharedPreferences.Editor ed = sPref.edit();
+					ed.putInt(String.valueOf(position), sex);
+					ed.apply();
+					VKRequest request = VKApi.groups().getMembers(VKParameters.from(VKApiConst.FIELDS, "first_name, sex, last_name, photo_max_orig, photo_100", VKApiConst.GROUP_ID, globalGroupId, //id группы, у которой получаю подписчиков
+							VKApiConst.COUNT, 10));
+					request.registerObject();
+					request.addExtraParameter("groupName", globalGroupName);
+					request.addExtraParameter("position", position);
 					request.executeWithListener(mRequestListener);
 				}
 				if (buttonView.getTag() == 1) {
@@ -300,6 +442,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 					sPref = getActivity().getSharedPreferences("sex", Context.MODE_PRIVATE);
 					SharedPreferences.Editor ed = sPref.edit();
 					ed.putInt("main", sex);
+					ed.putInt(String.valueOf(position), sex);
 					ed.apply();
 				}
 			/*	ScrollView sv = (ScrollView) fl.findViewWithTag("sv1");
@@ -331,11 +474,13 @@ public class SuperAwesomeCardFragment extends Fragment {
 			//InputStream content = (InputStream)url.getContent();
 			//Drawable d = Drawable.createFromStream(content , "src");
 			//iv.setImageDrawable(d);
-
+			if ((int) response.request.getMethodParameters().get("offset") == 0)
+				groupOffset = 0;
+			groupOffset += 10;
 			FrameLayout.LayoutParams imageViewParams = new FrameLayout.LayoutParams(
 					FrameLayout.LayoutParams.WRAP_CONTENT,
 					FrameLayout.LayoutParams.WRAP_CONTENT);
-			ll.removeAllViews();
+			//ll.removeAllViews();
 			try {
 				JSONObject obj = new JSONObject(response.json.toString());
 				JSONObject obj2 = obj.getJSONObject("response");
@@ -343,8 +488,12 @@ public class SuperAwesomeCardFragment extends Fragment {
 				/*ScrollView sv = (ScrollView) fl.findViewWithTag("sv1");
 				LinearLayout ll = (LinearLayout) sv.findViewWithTag("ll1");*/
 				String post_id = "не удалось";
-
-				for (int i = 0; i < arr.length(); i++)
+				Log.i("TAG", "request " + ((int) response.request.getMethodParameters().get("offset") + arr.length()));
+				int j = 0;
+				globalGroupName = "";
+				globalGroupId = "0";
+				for (int i = (int) response.request.getMethodParameters().get("offset");
+					 i < ((int) response.request.getMethodParameters().get("offset") + arr.length()); i++)
 				{
 					//post_id = arr.getJSONObject(i).getString("first_name");
 				/*	Log.i("TAG", "post_id = " + arr.getJSONObject(i).getString("photo_100"));
@@ -362,8 +511,8 @@ public class SuperAwesomeCardFragment extends Fragment {
 					InputStream content = null;*/
 
 					ImageView iv2 = new ImageView(getActivity());
-					final String groupId = arr.getJSONObject(i).getString("id");
-					final String groupName = arr.getJSONObject(i).getString("name");
+					final String groupId = arr.getJSONObject(j).getString("id");
+					final String groupName = arr.getJSONObject(j).getString("name");
 					//iv.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0 ,bytes.length));
 					iv2.setImageDrawable(getResources().getDrawable(R.drawable.nast));
 					iv2.setOnClickListener(new OnClickListener() {
@@ -375,6 +524,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 									VKApiConst.COUNT, 10));
 							request.registerObject();
 							request.addExtraParameter("groupName", groupName);
+							request.addExtraParameter("position", position);
 							request.executeWithListener(mRequestListener);
 						}
 					});
@@ -388,7 +538,10 @@ public class SuperAwesomeCardFragment extends Fragment {
 						iv2.setPadding(0, 10, 0, 10);
 					}
 					ll.addView(iv2);
-					new MyAsync(getActivity()).execute(arr.getJSONObject(i).getString("photo_100"), Integer.toString(i), "1" /*"https://pp.vk.me/c630229/v630229698/1ab4a/tEiUtwMWTyQ.jpg"*/);
+					new MyAsync(getActivity()).execute(arr.getJSONObject(j).getString("photo_100"), Integer.toString(i), "1" /*"https://pp.vk.me/c630229/v630229698/1ab4a/tEiUtwMWTyQ.jpg"*/);
+					j++;
+					if (j == arr.length())
+						isScroll = true;
 				}
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -439,19 +592,18 @@ public class SuperAwesomeCardFragment extends Fragment {
 				//JSONArray arr = obj.getJSONArray("response");
 				JSONObject obj2 = obj.getJSONObject("response");
 				JSONArray arr = obj2.getJSONArray("items");
-
+				String numPos = response.request.getMethodParameters().get("position").toString();
 				if (response.request.methodName.equals("groups.getMembers")) {
 					TextView groupName = new TextView(getActivity());
-					groupName.setText(response.request.getMethodParameters().get("groupName").toString());
+					globalGroupName = response.request.getMethodParameters().get("groupName").toString();
+					globalGroupId = response.request.getMethodParameters().get("group_id").toString();
+					groupName.setText(globalGroupName);
 					groupName.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							Toast toast = Toast.makeText(getActivity(),
-									"по названию",
-									Toast.LENGTH_SHORT);
-							toast.setGravity(Gravity.CENTER, 0, 0);
-							toast.show();
-							VKRequest request = VKApi.groups().get(VKParameters.from(VKApiConst.FIELDS, "id, name, photo_100", VKApiConst.EXTENDED, 1));
+							ll.removeAllViews();
+							VKRequest request = VKApi.groups().get(VKParameters.from(VKApiConst.FIELDS, "id, name, photo_100",
+									VKApiConst.EXTENDED, 1, VKApiConst.OFFSET, 0, VKApiConst.COUNT, 10));
 							request.registerObject();
 							request.executeWithListener(mRequestListenerGroup);
 						}
@@ -492,7 +644,8 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 					// HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 
 					sPref = getActivity().getSharedPreferences("sex", Context.MODE_PRIVATE);
-					int sex = sPref.getInt("0", 0);
+
+					int sex = sPref.getInt(numPos, 0);
 					if (arr.getJSONObject(i).getInt("sex") == sex || arr.getJSONObject(i).getInt("sex") == 0) {
 						ImageView iv2 = new ImageView(getActivity());
 						final String firstName = arr.getJSONObject(i).getString("first_name");
