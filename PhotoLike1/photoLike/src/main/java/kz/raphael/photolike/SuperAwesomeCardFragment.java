@@ -350,6 +350,9 @@ public class SuperAwesomeCardFragment extends Fragment {
 						}
 					});*/
 				}
+				else if (position == 2) {
+
+				}
 				Log.i("TAG", "rabotaet??? " + position);
 
 			}
@@ -382,7 +385,10 @@ public class SuperAwesomeCardFragment extends Fragment {
 		MenuItem menuItem= menu.findItem(R.id.myswitch);
         View view = MenuItemCompat.getActionView(menuItem);
         Switch switcha = (Switch)view.findViewById(R.id.switchForActionBar);
-
+		if (position == 2) {
+			switcha.setTextOn("Исх.");
+			switcha.setTextOff("Вхд.");
+		}
 		switcha.setOnTouchListener(new View.OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
@@ -445,6 +451,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 					ed.putInt(String.valueOf(position), sex);
 					ed.apply();
 				}
+
 			/*	ScrollView sv = (ScrollView) fl.findViewWithTag("sv1");
 				LinearLayout ll = (LinearLayout) sv.findViewWithTag("ll1");
 				TextView tv = new TextView(getActivity());
