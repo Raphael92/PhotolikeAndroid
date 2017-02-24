@@ -10,7 +10,9 @@ import com.vk.sdk.api.VKError;
 import com.vk.sdk.util.VKUtil;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -40,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
 	private static MyPagerAdapter adapter;
 	
 	private boolean isResumed = false;
+    SharedPreferences sPref;
 
 	private static final String[] sMyScope = new String[]{
         VKScope.FRIENDS,
@@ -53,6 +56,14 @@ public class MainActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_start);
+        sPref = getSharedPreferences("sex", Context.MODE_PRIVATE);
+        SharedPreferences.Editor ed = sPref.edit();
+        ed.putInt("main", 1);
+        ed.putInt("0", 1);
+        ed.putInt("1", 1);
+        ed.putInt("2", 0);
+        ed.putInt("main2", 0);
+        ed.apply();
 		adapter = new MyPagerAdapter(getSupportFragmentManager());
 		VKSdk.wakeUpSession(this, new VKCallback<VKSdk.LoginState>() {
             @Override
