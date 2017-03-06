@@ -118,6 +118,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 	private int groupOffset = 0;
 	private  int userOffset = 0;
 	private int loadedUsers = 0;
+	private int loveNumPage = 1;
 	private String globalGroupId = "0";
 	private String globalGroupName = "";
 	//private Switch switcha;
@@ -290,8 +291,32 @@ public class SuperAwesomeCardFragment extends Fragment {
 		else {
 
 			View v = getActivity().getLayoutInflater().inflate(R.layout.love_tab, null);
-		//	View sv = v.findViewById(R.id.scroll2);
-			new TaskGetLoveTab(getActivity()).execute(v);
+			final ScrollView sv = (ScrollView) v.findViewById(R.id.scroll2);
+			sv.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+				@Override
+				public void onScrollChanged() {
+					//  int scrollY = rootScrollView.getScrollY(); // For ScrollView
+					//  int scrollX = rootScrollView.getScrollX(); // For HorizontalScrollView
+					//  View view = (View) myScroll.getChildAt(myScroll.getChildCount()-1);
+					// int diff = (view.getBottom()-(myScroll.getHeight()+myScroll.getScrollY()+view.getBottom()));
+					/*if(sv.getScrollY() == 0 ) {
+						Toast.makeText(getActivity(), "Скролл",
+								Toast.LENGTH_SHORT).show();
+					}*/
+					View view = (View) sv.getChildAt(sv.getChildCount()-1);
+					int diff = (view.getBottom()-(sv.getHeight()+sv.getScrollY()+view.getTop()));
+					if( diff == 0 && /*numPage == 1 && view != null*/ isScroll ){
+						Toast.makeText(getActivity(), "Скролл " + numPage,
+								Toast.LENGTH_SHORT).show();
+						sv.scrollBy(0,-5);
+						isScroll = false;
+						loveNumPage++;
+						new TaskGetLoveTab(getActivity()).execute(loveNumPage);
+					}
+					// DO SOMETHING WITH THE SCROLL COORDINATES
+				}
+			});
+			new TaskGetLoveTab(getActivity()).execute(1);
 			fl.addView(v);
 		}
 
@@ -388,7 +413,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 						fll.removeAllViews();
 						View v = getActivity().getLayoutInflater().inflate(R.layout.love_tab, null);
 					//	View sv = v.findViewById(R.id.scroll2);
-						new TaskGetLoveTab(getActivity()).execute(v);
+						new TaskGetLoveTab(getActivity()).execute(1);
 						fll.addView(v);
 					}
 				}
@@ -537,7 +562,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 						tv.setText("Кому");
 					else
 						tv.setText("От кого");
-					new TaskGetLoveTab(getActivity()).execute(v);
+					new TaskGetLoveTab(getActivity()).execute(1);
 					fl.addView(v);
 				}
 
@@ -944,7 +969,10 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 				//	iv.setImageBitmap(string);
 				//Log.i("log_tag", "bitmap " + string);
 				//ImageLove.setImageBitmap(string);
-
+				Fragment frg = null;
+				frg = getActivity().getSupportFragmentManager().getFragments().get(3);
+				FrameLayout fll = (FrameLayout) frg.getView();
+				View v = fll.getChildAt(0);
 			}
 
 		}
@@ -1606,21 +1634,27 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 
 	}
 
-	public class TaskGetLoveTab extends AsyncTask<View, Void, JSONArray> {
+	public class TaskGetLoveTab extends AsyncTask<Integer, Void, JSONArray> {
 		//private Activity loveActivity;
-		View v;
+		//View v;
 	//	View scroll;
-		String inbox = "2";
+		//String inbox = "2";
+		int numPage = 1;
 		public TaskGetLoveTab(Activity activity) {
 			//loveActivity = activity;
 		}
 
 		@Override
-		protected JSONArray doInBackground(View... params) {
+		protected JSONArray doInBackground(Integer... params) {
 			//String result = "";
-			v = params[0];
+			numPage = params[0];
+			if (numPage == 1) {
+				loveNumPage = 1;
+				isScroll = true;
+			}
+			//v = params[0];
 		//	scroll = params[1];
-			Log.i("log_tag", "url =2 " + inbox);
+			//Log.i("log_tag", "url =2 " + inbox);
 			InputStream is = null;
 
 			//HttpsURLConnection conn=null;
@@ -1642,10 +1676,11 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 
 				String sex = String.valueOf(sPref.getInt("2", 0));
 
-				Log.i("log_tag", "url get = " + sex);
+				//Log.i("log_tag", "url get = " + sex);
 				String agent="Applet";
 				//  String query="query=" + r[0];
-				String query = "viewer_id=186332067&auth_key=eb2ca2e8df6ffc18daf33d07bdf119ac&inbox="+sex;
+				String query = "viewer_id=186332067&auth_key=eb2ca2e8df6ffc18daf33d07bdf119ac&inbox=" +
+						sex + "&page=" + numPage;
 				String type="application/x-www-form-urlencoded";
 				//	conn=(HttpsURLConnection)url.openConnection();
 
@@ -1752,6 +1787,12 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 	        textView.setText(string);*/
 			//TableRow rowLoveModal = null;
 			Log.i("log_tag","string: " + string);
+			int pages = 1;
+			//View v = getActivity().getLayoutInflater().inflate(R.layout.love_tab, null);
+			Fragment frg = null;
+			frg = getActivity().getSupportFragmentManager().getFragments().get(3);
+			FrameLayout fll = (FrameLayout) frg.getView();
+			View v = fll.getChildAt(0);
 			TableLayout tl = (TableLayout) v.findViewById(R.id.lovetab);
 			try {
 
@@ -1761,9 +1802,10 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 							", who_id: "+json_data.getString("who_id") +
 							", likeDate: "+json_data.getString("likeDate") +
 							", anonim: "+json_data.getString("anonim") +
+							", pages: "+json_data.getString("pages") +
 							", imgUrl: "+json_data.getString("imgUrl")
 					);
-
+					pages = json_data.getInt("pages");
 					TableRow tr = new TableRow(getActivity());
 
 					TextView tv = new TextView(getActivity());
@@ -1775,6 +1817,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 
 					ImageView iv = new ImageView(getActivity());
 					iv.setImageDrawable(getResources().getDrawable(R.drawable.nast));
+					//iv.setTag(json_data.getInt("id"));
 
 					new TaskLoadImage().execute("https://photolike.info/example_test/images/" + json_data.getString("imgUrl"));
 					VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.USER_IDS, json_data.getString("who_id"), VKApiConst.FIELDS, "photo_100"));
@@ -1827,8 +1870,9 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 			catch(JSONException e){
 				Log.e("log_tag", "Error parsing data "+e.toString());
 			}
-
-			ScrollView sv = (ScrollView) v.findViewById(R.id.scroll2);
+			if (pages > numPage)
+				isScroll = true;
+			/*ScrollView sv = (ScrollView) v.findViewById(R.id.scroll2);
 			LinearLayout v2 = (LinearLayout) sv.getChildAt(0);
 			//TableLayout tl = (TableLayout) v2.getChildAt(0);
 			int childHeight = v2.getHeight();
@@ -1837,11 +1881,14 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 			getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 			int height = displayMetrics.heightPixels;
 			//int width = displayMetrics.widthPixels;
-			boolean isScrollable = sv.getHeight() < childHeight + sv.getPaddingTop() + sv.getPaddingBottom();
+			if ((tl.getChildCount() - 1) * 100 * numPage < height && pages >= numPage)
+				new TaskGetLoveTab(getActivity()).execute((numPage + 1));
+			Log.i("getbottom ", "inviz " + tl.getChildCount() + " " + tl2.getHeight() + " " + height);*/
+			/*boolean isScrollable = sv.getHeight() < childHeight + sv.getPaddingTop() + sv.getPaddingBottom();
 			if (isScrollable)
 				Log.i("getbottom ", " " + tl.getChildCount());
 			else
-				Log.i("getbottom ", "inviz " + tl.getChildCount() + " " + tl2.getHeight() + " " + height);
+				Log.i("getbottom ", "inviz " + tl.getChildCount() + " " + tl2.getHeight() + " " + height);*/
 		}
 	}
 
