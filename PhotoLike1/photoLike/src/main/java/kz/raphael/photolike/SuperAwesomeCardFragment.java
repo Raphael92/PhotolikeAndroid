@@ -88,6 +88,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -121,6 +122,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 	private int loveNumPage = 1;
 	private String globalGroupId = "0";
 	private String globalGroupName = "";
+	private Boolean syncLoading = false;
 	//private Switch switcha;
 
 	public final static String BROADCAST_ACTION = "kz.photolike.raphael";
@@ -413,8 +415,9 @@ public class SuperAwesomeCardFragment extends Fragment {
 						fll.removeAllViews();
 						View v = getActivity().getLayoutInflater().inflate(R.layout.love_tab, null);
 					//	View sv = v.findViewById(R.id.scroll2);
-						new TaskGetLoveTab(getActivity()).execute(1);
 						fll.addView(v);
+						new TaskGetLoveTab(getActivity()).execute(1);
+
 					}
 				}
 				Log.i("TAG", "rabotaet??? " + position);
@@ -897,73 +900,84 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 
 		public class TaskLoadImage extends AsyncTask<String, Void, Bitmap> {
 			ImageView v;
+			String ivTag = null;
 			public TaskLoadImage() {
 
 			}
 
 			@Override
 			protected Bitmap doInBackground(String... params) {
-				HttpsURLConnection conn= null;
-				InputStream is = null;
-
-				try {
-					URL url = new URL(params[0]);
-					Log.i("log_tag", "bitmap " + url);
-					SSLContext context = SSLContext.getInstance("TLS");
-					//connection = (HttpsURLConnection) url.openConnection();
-
-					CertificateFactory cf = CertificateFactory.getInstance("X.509");
-// From https://www.washington.edu/itconnect/security/ca/load-der.crt
-					InputStream caInput = SuperAwesomeCardFragment.this.getResources().openRawResource(R.raw.photolike);//new BufferedInputStream(new FileInputStream("photolike.crt"));
-					Certificate ca;
+			/*	while (syncLoading) {
 					try {
-						ca = cf.generateCertificate(caInput);
-						System.out.println("ca=" + ((X509Certificate) ca).getSubjectDN());
-					} finally {
-						caInput.close();
+						TimeUnit.SECONDS.sleep(1);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
+				}
+				syncLoading = true;*/
+					HttpsURLConnection conn = null;
+					InputStream is = null;
+					try {
+
+						URL url = new URL(params[0]);
+						ivTag = params[1];
+						Log.i("log_tag", "bitmap " + url);
+						SSLContext context = SSLContext.getInstance("TLS");
+						//connection = (HttpsURLConnection) url.openConnection();
+
+						CertificateFactory cf = CertificateFactory.getInstance("X.509");
+// From https://www.washington.edu/itconnect/security/ca/load-der.crt
+						InputStream caInput = SuperAwesomeCardFragment.this.getResources().openRawResource(R.raw.photolike);//new BufferedInputStream(new FileInputStream("photolike.crt"));
+						Certificate ca;
+						try {
+							ca = cf.generateCertificate(caInput);
+							System.out.println("ca=" + ((X509Certificate) ca).getSubjectDN());
+						} finally {
+							caInput.close();
+						}
 
 // Create a KeyStore containing our trusted CAs
-					String keyStoreType = KeyStore.getDefaultType();
-					KeyStore keyStore = KeyStore.getInstance(keyStoreType);
-					keyStore.load(null, null);
-					keyStore.setCertificateEntry("ca", ca);
+						String keyStoreType = KeyStore.getDefaultType();
+						KeyStore keyStore = KeyStore.getInstance(keyStoreType);
+						keyStore.load(null, null);
+						keyStore.setCertificateEntry("ca", ca);
 
 // Create a TrustManager that trusts the CAs in our KeyStore
-					String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
-					TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
-					tmf.init(keyStore);
+						String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+						TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
+						tmf.init(keyStore);
 
 // Create an SSLContext that uses our TrustManager
-					//SSLContext context = SSLContext.getInstance("TLS");
-					context.init(null, tmf.getTrustManagers(), null);
+						//SSLContext context = SSLContext.getInstance("TLS");
+						context.init(null, tmf.getTrustManagers(), null);
 
 // Tell the URLConnection to use a SocketFactory from our SSLContext
-					//URL url = new URL("https://certs.cac.washington.edu/CAtest/");
-					conn =
-							(HttpsURLConnection)url.openConnection();
-					conn.setSSLSocketFactory(context.getSocketFactory());
+						//URL url = new URL("https://certs.cac.washington.edu/CAtest/");
+						conn =
+								(HttpsURLConnection) url.openConnection();
+						conn.setSSLSocketFactory(context.getSocketFactory());
 
-					conn.setUseCaches(true);
-					is = conn.getInputStream();
-					Bitmap myBitmap = BitmapFactory.decodeStream(is);
-					return myBitmap;
-				} catch (IOException e) {
-					Log.i("log_tag", "ошибка love " + e.getMessage());
-					e.printStackTrace();
-				} catch (CertificateException e) {
-					e.printStackTrace();
-				} catch (NoSuchAlgorithmException e) {
-					e.printStackTrace();
-				} catch (KeyStoreException e) {
-					e.printStackTrace();
-				} catch (KeyManagementException e) {
-					e.printStackTrace();
-				} finally{
-					conn.disconnect();
+						conn.setUseCaches(true);
+						is = conn.getInputStream();
+						Bitmap myBitmap = BitmapFactory.decodeStream(is);
+						return myBitmap;
+					} catch (IOException e) {
+						Log.i("log_tag", "ошибка love " + e.getMessage());
+						e.printStackTrace();
+					} catch (CertificateException e) {
+						e.printStackTrace();
+					} catch (NoSuchAlgorithmException e) {
+						e.printStackTrace();
+					} catch (KeyStoreException e) {
+						e.printStackTrace();
+					} catch (KeyManagementException e) {
+						e.printStackTrace();
+					} finally {
+						conn.disconnect();
+					}
+
+					return null;
 				}
-				return null;
-			}
 
 			public void onPostExecute(Bitmap string) {
 				//	iv.setImageBitmap(string);
@@ -973,8 +987,11 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 				frg = getActivity().getSupportFragmentManager().getFragments().get(3);
 				FrameLayout fll = (FrameLayout) frg.getView();
 				View v = fll.getChildAt(0);
+				TableLayout tl = (TableLayout) v.findViewById(R.id.lovetab);
+				//TableRow tr = (TableRow) tl.findViewWithTag(ivTag);
+				ImageView iv = (ImageView) tl.findViewWithTag(ivTag);
+				iv.setImageBitmap(string);
 			}
-
 		}
 
 	public class MyAsync extends AsyncTask<String, Void, Bitmap> {
@@ -989,6 +1006,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 
 		@Override
 		protected void onPreExecute() {
+			//ll.removeAllViews();
 			Log.i("Async-Example", "onPreExecute Called");
 		/*	simpleWaitDialog = ProgressDialog.show(mActivity,
 					"Wait", "Downloading Image");*/
@@ -1645,9 +1663,19 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 		}
 
 		@Override
+		protected void onPreExecute() {
+			/*Fragment frg = null;
+			frg = getActivity().getSupportFragmentManager().getFragments().get(3);
+			FrameLayout fll = (FrameLayout) frg.getView();
+			fll.removeAllViews();*/
+
+		}
+
+		@Override
 		protected JSONArray doInBackground(Integer... params) {
 			//String result = "";
 			numPage = params[0];
+
 			if (numPage == 1) {
 				loveNumPage = 1;
 				isScroll = true;
@@ -1806,7 +1834,13 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 							", imgUrl: "+json_data.getString("imgUrl")
 					);
 					pages = json_data.getInt("pages");
+					String anonim = "";
+					if (json_data.getInt("anonim") == 1)
+						anonim = "(анонимно)";
+					String ivTag = json_data.getString("who_id") + "tag" + json_data.getString("id");
+
 					TableRow tr = new TableRow(getActivity());
+				//	tr.setTag(ivTag);
 
 					TextView tv = new TextView(getActivity());
 					tv.setText(json_data.getString("likeDate"));
@@ -1815,13 +1849,15 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 					final TextView tv2 = new TextView(getActivity());
 					tv2.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
 
+
 					ImageView iv = new ImageView(getActivity());
 					iv.setImageDrawable(getResources().getDrawable(R.drawable.nast));
-					//iv.setTag(json_data.getInt("id"));
+					iv.setTag(ivTag);
 
-					new TaskLoadImage().execute("https://photolike.info/example_test/images/" + json_data.getString("imgUrl"));
+					new TaskLoadImage().execute("https://photolike.info/example_test/images/" + json_data.getString("imgUrl"), ivTag);
 					VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.USER_IDS, json_data.getString("who_id"), VKApiConst.FIELDS, "photo_100"));
 					request.registerObject();
+					final String finalAnonim = anonim;
 					request.executeWithListener(new VKRequestListener() {
 						@Override
 						public void onComplete(VKResponse response) {
@@ -1829,7 +1865,8 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 								JSONObject obj = new JSONObject(response.json.toString());
 								JSONArray arr = obj.getJSONArray("response");
 								//	JSONArray arr = obj2.getJSONArray("items");
-								tv2.setText(arr.getJSONObject(0).getString("first_name") + " " + arr.getJSONObject(0).getString("last_name"));
+								tv2.setText(arr.getJSONObject(0).getString("first_name") + " " + arr.getJSONObject(0).getString("last_name")
+									+ finalAnonim);
 
 								//new MyAsync(getActivity()).execute(arr.getJSONObject(0).getString("photo_100"), Integer.toString(0), "0");
 							} catch (JSONException e) {
