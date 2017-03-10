@@ -219,12 +219,15 @@ public class SuperAwesomeCardFragment extends Fragment {
 			request.registerObject();
 			request.addExtraParameter("position", position);
 			request.executeWithListener(mRequestListener);*/
-			ll.removeAllViews();
+
+			/*ll.removeAllViews();
 			VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,sex,bdate,city,photo_max_orig, photo_100",
 					"order", "hints", VKApiConst.COUNT, 10, VKApiConst.OFFSET, 0));
 			request.registerObject();
 			request.addExtraParameter("position", position);
-			request.executeWithListener(mRequestListener);
+			request.executeWithListener(mRequestListener);*/
+			TaskSleepTab1 st1 = new TaskSleepTab1();
+			st1.execute();
 		}
 		else
 		if (position == 1) {
@@ -313,13 +316,17 @@ public class SuperAwesomeCardFragment extends Fragment {
 						sv.scrollBy(0,-5);
 						isScroll = false;
 						loveNumPage++;
-						new TaskGetLoveTab(getActivity()).execute(loveNumPage);
+						//new TaskGetLoveTab(getActivity()).execute(loveNumPage);
+						/*TaskSleepTab3_1 st3_1 = new TaskSleepTab3_1();
+						st3_1.execute(loveNumPage);*/
 					}
 					// DO SOMETHING WITH THE SCROLL COORDINATES
 				}
 			});
-			new TaskGetLoveTab(getActivity()).execute(1);
+			//new TaskGetLoveTab(getActivity()).execute(1);
 			fl.addView(v);
+			TaskSleepTab3_1 st3_1 = new TaskSleepTab3_1();
+			st3_1.execute(1);
 		}
 
 		MainActivity activity = (MainActivity) getActivity();
@@ -373,12 +380,15 @@ public class SuperAwesomeCardFragment extends Fragment {
 						SharedPreferences.Editor ed = sPref.edit();
 						ed.putInt("0", sexMain);
 						ed.apply();
-						ll.removeAllViews();
+						//syncLoading = true;
+						/*ll.removeAllViews();
 						VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,sex,bdate,city,photo_max_orig, photo_100",
 								"order", "hints", VKApiConst.COUNT, 10, VKApiConst.OFFSET, 0));
 						request.registerObject();
 						request.addExtraParameter("position", position);
-						request.executeWithListener(mRequestListener);
+						request.executeWithListener(mRequestListener);*/
+						TaskSleepTab1 st1 = new TaskSleepTab1();
+						st1.execute();
 					}
 				}
 				else if (position == 1) {
@@ -409,14 +419,16 @@ public class SuperAwesomeCardFragment extends Fragment {
 						SharedPreferences.Editor ed = sPref.edit();
 						ed.putInt("2", sexMain);
 						ed.apply();
-						Fragment frg = null;
+						/*Fragment frg = null;
 						frg = getActivity().getSupportFragmentManager().getFragments().get(3);
 						FrameLayout fll = (FrameLayout) frg.getView();
 						fll.removeAllViews();
 						View v = getActivity().getLayoutInflater().inflate(R.layout.love_tab, null);
 					//	View sv = v.findViewById(R.id.scroll2);
 						fll.addView(v);
-						new TaskGetLoveTab(getActivity()).execute(1);
+						new TaskGetLoveTab(getActivity()).execute(1);*/
+						TaskSleepTab3 st3 = new TaskSleepTab3();
+						st3.execute();
 
 					}
 				}
@@ -747,34 +759,6 @@ public class SuperAwesomeCardFragment extends Fragment {
 				for (int i = (int) response.request.getMethodParameters().get("offset");
 					 i < ((int) response.request.getMethodParameters().get("offset") + arr.length()); i++)
 				{
-				//	post_id = arr.getJSONObject(i).getString("first_name");
-				//	Log.i("TAG", "post_id = " + arr.getJSONObject(i).getString("photo_100"));
-				//	URL url = null;
-				//	ImageView iv = new ImageView(getContext());
-				/*	try {
-						url = new URL(///rr.getJSONObject(i).getString("photo_max_orig")
-								"https://pp.vk.me/c630229/v630229698/1ab49/lBbc1d3gUSI.jpg");
-						Log.i("TAG", "url " + url);
-					} catch (MalformedURLException e) {
-						// TODO Auto-generated catch block
-						Log.i("TAG", "ошибка " + i);
-						e.printStackTrace();
-					}
-					InputStream content = null;*/
-
-					//Здесь ошибки -------------------
-
-					//	content = (InputStream)url.getContent();
-/*	SSLContext context = SSLContext.getInstance("TLS");
-   context.init(null, tmf.getTrustManagers(), null);
-
-HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
-   urlConnection.setSSLSocketFactory(context.getSocketFactory());
-   InputStream in = urlConnection.getInputStream();*/
-//	URLConnection urlConnection = url.openConnection();
-//content = (InputStream) url.getContent();
-// URL url = new URL("http://www.android.com/");   
-					// HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 
 					sPref = getActivity().getSharedPreferences("sex", Context.MODE_PRIVATE);
 
@@ -794,12 +778,6 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 							@Override
 							public void onClick(View v) {
 								// TODO Auto-generated method stub
-								//	Log.i("TAG", "clickListener " + v.getTag());
-								/*Switch anonSwitch = new Switch(getActivity());
-								anonSwitch.setText("Анонимно");
-								TableRow.LayoutParams params = new TableRow.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-								params.setMargins(0,0,0,0);
-								anonSwitch.setGravity(Gravity.CENTER_HORIZONTAL);*/
 
 									AlertDialog.Builder ad = new AlertDialog.Builder(getActivity());
 									//TextView vText = (TextView) v;
@@ -843,7 +821,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 							iv2.setPadding(0, 10, 0, 10);
 						}
 						ll.addView(iv2);
-						new MyAsync(getActivity()).execute(arr.getJSONObject(j).getString("photo_100"), Integer.toString(i), "0" /*"https://pp.vk.me/c630229/v630229698/1ab4a/tEiUtwMWTyQ.jpg"*/);
+						new MyAsync(getActivity()).execute(arr.getJSONObject(j).getString("photo_100"), Integer.toString(i), "0");
 					}
 					j++;
 					if (j == arr.length())
@@ -901,8 +879,16 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 		public class TaskLoadImage extends AsyncTask<String, Void, Bitmap> {
 			ImageView v;
 			String ivTag = null;
+			String v1;
+			String v2;
 			public TaskLoadImage() {
 
+			}
+
+			@Override
+			protected void onPreExecute() {
+				//ll.removeAllViews();
+				syncLoading = true;
 			}
 
 			@Override
@@ -913,14 +899,16 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-				}
-				syncLoading = true;*/
+				}*/
+
 					HttpsURLConnection conn = null;
 					InputStream is = null;
 					try {
 
 						URL url = new URL(params[0]);
 						ivTag = params[1];
+						v1 = params[2];
+						v2 = params[3];
 						Log.i("log_tag", "bitmap " + url);
 						SSLContext context = SSLContext.getInstance("TLS");
 						//connection = (HttpsURLConnection) url.openConnection();
@@ -983,6 +971,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 				//	iv.setImageBitmap(string);
 				//Log.i("log_tag", "bitmap " + string);
 				//ImageLove.setImageBitmap(string);
+
 				Fragment frg = null;
 				frg = getActivity().getSupportFragmentManager().getFragments().get(3);
 				FrameLayout fll = (FrameLayout) frg.getView();
@@ -991,6 +980,8 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 				//TableRow tr = (TableRow) tl.findViewWithTag(ivTag);
 				ImageView iv = (ImageView) tl.findViewWithTag(ivTag);
 				iv.setImageBitmap(string);
+				if ((Integer.parseInt(v1) + 1) == Integer.parseInt(v2))
+					syncLoading = false;
 			}
 		}
 
@@ -1007,6 +998,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 		@Override
 		protected void onPreExecute() {
 			//ll.removeAllViews();
+			syncLoading = true;
 			Log.i("Async-Example", "onPreExecute Called");
 		/*	simpleWaitDialog = ProgressDialog.show(mActivity,
 					"Wait", "Downloading Image");*/
@@ -1073,6 +1065,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 		//	ScrollView sv = (ScrollView) fl.findViewWithTag("sv1");
 		//	final LinearLayout ll = (LinearLayout) sv.findViewWithTag("ll1");
 			//Drawable d = Drawable.createFromStream(is, "src");
+
 			if (!isGroup)
 				Log.i("TAG", "картинка = " + string.getByteCount());
 			else
@@ -1160,6 +1153,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 			v.setText("CARD q");
 			fl.addView(v);
 	    	Log.i("TAG", "task " + string);*/
+			syncLoading = false;
 		}
 	}
 
@@ -1652,6 +1646,129 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 
 	}
 
+	public class TaskSleepTab1 extends AsyncTask<String, Void, Void> {
+
+		public TaskSleepTab1() {
+
+		}
+		public void onPreExecute(Void string) {
+
+		}
+		@Override
+		protected Void doInBackground(String... params) {
+			try {
+				int time = 0;
+				while (syncLoading) {
+					Log.i("log_tag", "time " + time);
+					TimeUnit.SECONDS.sleep(1);
+					time++;
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		public void onPostExecute(Void string) {
+			ll.removeAllViews();
+			VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,sex,bdate,city,photo_max_orig, photo_100",
+					"order", "hints", VKApiConst.COUNT, 10, VKApiConst.OFFSET, 0));
+			request.registerObject();
+			request.addExtraParameter("position", position);
+			request.executeWithListener(mRequestListener);
+
+
+		}
+	}
+
+	public class TaskSleepImage extends AsyncTask<String, Void, Void> {
+		String v1;
+		String v2;
+		public TaskSleepImage() {
+
+		}
+		public void onPreExecute(Void string) {
+
+		}
+		@Override
+		protected Void doInBackground(String... params) {
+			v1 = params[0];
+			v2 = params[1];
+			try {
+				int time = 0;
+				while (syncLoading) {
+					Log.i("log_tag", "time " + time);
+					TimeUnit.SECONDS.sleep(1);
+					time++;
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		public void onPostExecute(Void string) {
+			new TaskLoadImage().execute("https://photolike.info/example_test/images/" + v1, v2);
+		}
+	}
+
+	public class TaskSleepTab3_1 extends AsyncTask<Integer, Void, Void> {
+		Integer v;
+		public TaskSleepTab3_1() {
+
+		}
+		public void onPreExecute(Void string) {
+
+		}
+		@Override
+		protected Void doInBackground(Integer... params) {
+			v = params[0];
+			try {
+				while (syncLoading)
+					TimeUnit.SECONDS.sleep(1);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		public void onPostExecute(Void string) {
+			new TaskGetLoveTab(getActivity()).execute(v);
+
+		}
+	}
+
+	public class TaskSleepTab3 extends AsyncTask<String, Void, Void> {
+
+		public TaskSleepTab3() {
+
+		}
+		public void onPreExecute(Void string) {
+
+		}
+		@Override
+		protected Void doInBackground(String... params) {
+			try {
+				while (syncLoading)
+					TimeUnit.SECONDS.sleep(1);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		public void onPostExecute(Void string) {
+			Fragment frg = null;
+			frg = getActivity().getSupportFragmentManager().getFragments().get(3);
+			FrameLayout fll = (FrameLayout) frg.getView();
+			fll.removeAllViews();
+			View v = getActivity().getLayoutInflater().inflate(R.layout.love_tab, null);
+			//	View sv = v.findViewById(R.id.scroll2);
+			fll.addView(v);
+			new TaskGetLoveTab(getActivity()).execute(1);
+		}
+	}
+
 	public class TaskGetLoveTab extends AsyncTask<Integer, Void, JSONArray> {
 		//private Activity loveActivity;
 		//View v;
@@ -1668,7 +1785,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 			frg = getActivity().getSupportFragmentManager().getFragments().get(3);
 			FrameLayout fll = (FrameLayout) frg.getView();
 			fll.removeAllViews();*/
-
+			syncLoading = true;
 		}
 
 		@Override
@@ -1814,6 +1931,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 	       /* TextView textView = (TextView) mActivity.findViewById(R.id.responce);
 	        textView.setText(string);*/
 			//TableRow rowLoveModal = null;
+
 			Log.i("log_tag","string: " + string);
 			int pages = 1;
 			//View v = getActivity().getLayoutInflater().inflate(R.layout.love_tab, null);
@@ -1825,6 +1943,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 			try {
 
 				for(int i=0;i<string.length();i++){
+
 					JSONObject json_data = string.getJSONObject(i);
 					Log.i("log_tag","id: "+json_data.getInt("id") +
 							", who_id: "+json_data.getString("who_id") +
@@ -1854,7 +1973,10 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 					iv.setImageDrawable(getResources().getDrawable(R.drawable.nast));
 					iv.setTag(ivTag);
 
-					new TaskLoadImage().execute("https://photolike.info/example_test/images/" + json_data.getString("imgUrl"), ivTag);
+					new TaskLoadImage().execute("https://photolike.info/example_test/images/" + json_data.getString("imgUrl"),
+							ivTag, String.valueOf(i), String.valueOf(string.length()));
+					/*TaskSleepImage si = new TaskSleepImage();
+					si.execute(json_data.getString("imgUrl"), ivTag);*/
 					VKRequest request = VKApi.users().get(VKParameters.from(VKApiConst.USER_IDS, json_data.getString("who_id"), VKApiConst.FIELDS, "photo_100"));
 					request.registerObject();
 					final String finalAnonim = anonim;
@@ -1909,6 +2031,7 @@ HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
 			}
 			if (pages > numPage)
 				isScroll = true;
+			syncLoading = false;
 			/*ScrollView sv = (ScrollView) v.findViewById(R.id.scroll2);
 			LinearLayout v2 = (LinearLayout) sv.getChildAt(0);
 			//TableLayout tl = (TableLayout) v2.getChildAt(0);
