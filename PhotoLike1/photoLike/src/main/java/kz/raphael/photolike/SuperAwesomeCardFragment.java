@@ -558,7 +558,14 @@ public class SuperAwesomeCardFragment extends Fragment {
                 // do anything here on check changed
 				Log.i("TAG", "CARD buttonView " + buttonView.getTag());
 				int main2 = 0;
-				if (buttonView.getTag() == 1) {
+				int buttonint = 0;
+				try {
+					buttonint = Integer.parseInt(String.valueOf(buttonView.getTag()));
+				}
+				catch(Exception e) {
+					buttonint = 0;
+				}
+				if (/*buttonView.getTag()*/buttonint == 1) {
 					int sex = 0;
 					if (isChecked)
 						sex = 1;
@@ -576,7 +583,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 					main2 = sex - 1;
 					ed.apply();
 				}
-				if (buttonView.getTag() == 1 && position == 0) {
+				if (/*buttonView.getTag()*/buttonint == 1 && position == 0) {
 					Toast.makeText(getActivity(), "Monitored2 switch is " + position + " " + (isChecked ? "on" : "off"),
 							Toast.LENGTH_SHORT).show();
 					int sex = 0;
@@ -606,7 +613,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 					/*TaskSleepTab1 st1 = new TaskSleepTab1();
 					st1.execute();*/
 				}
-				if (buttonView.getTag() == 1 && position == 1 && !globalGroupId.equals("0")) {
+				if (/*buttonView.getTag()*/buttonint == 1 && position == 1 && !globalGroupId.equals("0")) {
 					Toast.makeText(getActivity(), "Monitored2 switch is " + position + " " + (isChecked ? "on" : "off"),
 							Toast.LENGTH_SHORT).show();
 					int sex = 0;
@@ -626,7 +633,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 					request.addExtraParameter("position", position);
 					request.executeWithListener(mRequestListener);
 				}
-				if (buttonView.getTag() == 1 && position == 2) {
+				if (/*buttonView.getTag()*/buttonint == 1 && position == 2) {
 					Toast.makeText(getActivity(), "вход/исход ",
 							Toast.LENGTH_SHORT).show();
 					int sex = 0;
