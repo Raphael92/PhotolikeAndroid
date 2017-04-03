@@ -26,6 +26,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -35,6 +36,7 @@ import android.support.v4.view.ViewPager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -118,6 +120,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 	private Boolean isScroll = true;
 	private int groupOffset = 0;
 	private  int userOffset = 0;
+	private  int plusUserOffset = 10;
 	private int loadedUsers = 0;
 	private int loveNumPage = 1;
 	private String globalGroupId = "0";
@@ -145,7 +148,12 @@ public class SuperAwesomeCardFragment extends Fragment {
 		position = getArguments().getInt(ARG_POSITION);
 		Log.i("TAG", "CARD " + position);
 		setHasOptionsMenu(true);
-
+		Display display = getActivity().getWindowManager().getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		//	int width = size.x;
+		int height = size.y;
+		plusUserOffset = height / 80;
 
 	}
 
@@ -264,7 +272,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 						}
 						else {
 							VKRequest request = VKApi.groups().getMembers(VKParameters.from(VKApiConst.FIELDS, "first_name, sex, last_name, photo_max_orig, photo_100", VKApiConst.GROUP_ID, globalGroupId, //id группы, у которой получаю подписчиков
-									VKApiConst.COUNT, 10, VKApiConst.OFFSET, userOffset));
+									VKApiConst.COUNT, /*10*/plusUserOffset, VKApiConst.OFFSET, userOffset));
 							request.registerObject();
 							request.addExtraParameter("groupName", globalGroupName);
 							request.addExtraParameter("position", position);
@@ -511,7 +519,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 
 	public void loadSecondTab(int offset) {
 		VKRequest request = VKApi.groups().get(VKParameters.from(VKApiConst.FIELDS, "id, name, photo_100",
-				VKApiConst.EXTENDED, 1, VKApiConst.OFFSET, offset, VKApiConst.COUNT, 10));
+				VKApiConst.EXTENDED, 1, VKApiConst.OFFSET, offset, VKApiConst.COUNT, /*10*/plusUserOffset));
 		request.registerObject();
 		request.executeWithListener(mRequestListenerGroup);
 	}
@@ -627,7 +635,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 					ed.apply();
 					ll.removeAllViews();
 					VKRequest request = VKApi.groups().getMembers(VKParameters.from(VKApiConst.FIELDS, "first_name, sex, last_name, photo_max_orig, photo_100", VKApiConst.GROUP_ID, globalGroupId, //id группы, у которой получаю подписчиков
-							VKApiConst.COUNT, 10, VKApiConst.OFFSET, 0));
+							VKApiConst.COUNT, /*10*/plusUserOffset, VKApiConst.OFFSET, 0));
 					request.registerObject();
 					request.addExtraParameter("groupName", globalGroupName);
 					request.addExtraParameter("position", position);
@@ -716,7 +724,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 							//ll.removeAllViews();
 							ll.removeAllViews();
 							VKRequest request = VKApi.groups().getMembers(VKParameters.from(VKApiConst.FIELDS, "first_name, sex, last_name, photo_max_orig, photo_100", VKApiConst.GROUP_ID, groupId, //id группы, у которой получаю подписчиков
-									VKApiConst.COUNT, 10, VKApiConst.OFFSET, 0));
+									VKApiConst.COUNT, /*10*/plusUserOffset, VKApiConst.OFFSET, 0));
 							request.registerObject();
 							request.addExtraParameter("groupName", groupName);
 							request.addExtraParameter("position", position);
@@ -785,7 +793,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 				loadedUsers = 0;
 				userOffset = 0;
 			}
-			userOffset += 10;
+			userOffset += /*10*/plusUserOffset;
 			Log.i("TAG", "вкладка должна: " + loadedUsers + " " + userOffset);
 			try {
 				JSONObject obj = new JSONObject(response.json.toString());
@@ -804,7 +812,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 						public void onClick(View v) {
 							ll.removeAllViews();
 							VKRequest request = VKApi.groups().get(VKParameters.from(VKApiConst.FIELDS, "id, name, photo_100",
-									VKApiConst.EXTENDED, 1, VKApiConst.OFFSET, 0, VKApiConst.COUNT, 10));
+									VKApiConst.EXTENDED, 1, VKApiConst.OFFSET, 0, VKApiConst.COUNT, /*10*/plusUserOffset));
 							request.registerObject();
 							request.executeWithListener(mRequestListenerGroup);
 						}
@@ -899,7 +907,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 					else
 					if (position == 1) {
 						VKRequest request = VKApi.groups().getMembers(VKParameters.from(VKApiConst.FIELDS, "first_name, sex, last_name, photo_max_orig, photo_100", VKApiConst.GROUP_ID, globalGroupId, //id группы, у которой получаю подписчиков
-								VKApiConst.COUNT, 10, VKApiConst.OFFSET, userOffset));
+								VKApiConst.COUNT, /*10*/plusUserOffset, VKApiConst.OFFSET, userOffset));
 						request.registerObject();
 						request.addExtraParameter("groupName", globalGroupName);
 						request.addExtraParameter("position", position);
@@ -1308,7 +1316,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 			/*new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" +
 					json_data.getString("imgUrl"), Integer.toString(i), userId, "0");*/
 			new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/" + result, Integer.toString(num),
-					userId, Integer.toString(newType), "0");
+					userId, Integer.toString(newType), "0", "-1");
 				/*	if (json_data.getString("wantSex").equals("1") && json_data.getString("mutualSex").equals("1"))
 						new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" + json_data.getString("imgUrl"), Integer.toString(i));
 					else if (json_data.getString("wantSex").equals("1"))
@@ -1328,6 +1336,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 
 		@Override
 		protected JSONArray doInBackground(String... params) {
+			syncLoading = true;
 			String result = "";
 			Log.i("log_tag", "url =2 ");
 			InputStream is = null;
@@ -1410,6 +1419,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 			}catch(Exception e){
 				e.printStackTrace();
 				Log.e("log_tag", "Error in http connection "+e.toString());
+				syncLoading = false;
 			}/*finally{
 		    	conn.disconnect();
 		    }*/
@@ -1431,6 +1441,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 				result=sb.toString();
 			}catch(Exception e){
 				Log.e("log_tag", "Error converting result "+e.toString());
+				syncLoading = false;
 			}
 
 			//parse json data
@@ -1449,6 +1460,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 			}
 			catch(JSONException e){
 				Log.e("log_tag", "Error parsing data "+e.toString());
+				syncLoading = false;
 			}
 			return jArray;
 		}
@@ -1477,13 +1489,13 @@ public class SuperAwesomeCardFragment extends Fragment {
 				        ImageView ImageLove = new ImageView(getActivity());*/
 					if (json_data.getString("wantSex").equals("1") && json_data.getString("mutualSex").equals("1"))
 						new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" +
-								json_data.getString("imgUrl"), Integer.toString(i), userId, "0", "1");
+								json_data.getString("imgUrl"), Integer.toString(i), userId, "0", "1", Integer.toString(string.length() - 1));
 				    else if (json_data.getString("wantSex").equals("1"))
 						new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" +
-								json_data.getString("imgUrl_YesNo"), Integer.toString(i), userId, "0", "1");
+								json_data.getString("imgUrl_YesNo"), Integer.toString(i), userId, "0", "1", Integer.toString(string.length() - 1));
 					else
 						new GetImageLoveAsync(getActivity()).execute("https://photolike.info/example_test/images/" +
-								json_data.getString("imgUrl_No"), Integer.toString(i), userId, "1", "1");
+								json_data.getString("imgUrl_No"), Integer.toString(i), userId, "1", "1", Integer.toString(string.length() - 1));
 					/*   rowLoveModal.addView(ImageLove);
 
 						tableModal.addView(rowLoveModal);
@@ -1496,6 +1508,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 			}
 			catch(JSONException e){
 				Log.e("log_tag", "Error parsing data "+e.toString());
+				syncLoading = false;
 			}
 
 
@@ -1510,6 +1523,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 		private String userId = "0";
 		private String sexNew = "0";
 		private String newModal = "1";
+		private int countImage = 0;
 		public GetImageLoveAsync(Activity activity) {
 			loveImageActivity = activity;
 		}
@@ -1523,6 +1537,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 			userId = params[2];
 			sexNew = params[3];
 			newModal = params[4];
+			countImage = Integer.parseInt(params[5]);
 			//	if (i % 2 == 0) {
        		/*	rowLoveModal = new TableRow(getActivity());
        			ImageLove = new ImageView(getActivity());
@@ -1653,8 +1668,41 @@ public class SuperAwesomeCardFragment extends Fragment {
 					});
 				}
 			}
+			Log.i("log_tag", "height " + nomRec + " " + countImage + " " + syncLoading);
+			if (nomRec == countImage) {
+				syncLoading = false;
+				Log.i("log_tag", "height Завершил");
+			}
 		}
 
+	}
+
+	public class TaskSleepTabModal extends AsyncTask<String, Void, Void> {
+		//int offset = 0;
+		String userid = "0";
+		public TaskSleepTabModal() {
+
+		}
+
+		@Override
+		protected Void doInBackground(String... params) {
+
+			try {
+				userid = params[0];
+				while (syncLoading) {
+					TimeUnit.SECONDS.sleep(1);
+					Log.i("TAG", "gettag1 " + syncLoading);
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			//syncLoading = true;
+			return null;
+		}
+
+		public void onPostExecute(Void string) {
+			new GetLoveAsync(getActivity()).execute("https://photolike.info/example_test/getSexType.php", userid);
+		}
 	}
 
 	public class TaskSleepTab1 extends AsyncTask<Integer, Void, Void> {
@@ -1696,7 +1744,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 
 			}
 			VKRequest request = VKApi.friends().get(VKParameters.from(VKApiConst.FIELDS, "id,first_name,last_name,sex,bdate,city,photo_max_orig, photo_100",
-					"order", "hints", VKApiConst.COUNT, 10, VKApiConst.OFFSET, offset));
+					"order", "hints", VKApiConst.COUNT, /*10*/plusUserOffset, VKApiConst.OFFSET, offset));
 			request.registerObject();
 			request.addExtraParameter("position", 0);
 			request.executeWithListener(mRequestListener);
@@ -1827,6 +1875,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 								//new TaskGetLoveTab(getActivity()).execute(loveNumPage);
 								TaskSleepTab3 st3 = new TaskSleepTab3();
 								st3.execute(sex, loveNumPage);
+
 							}
 							// DO SOMETHING WITH THE SCROLL COORDINATES
 						}
@@ -1842,7 +1891,21 @@ public class SuperAwesomeCardFragment extends Fragment {
 					fl.addView(v);
 					//	}
 				}
-				new TaskGetLoveTab(getActivity()).execute(nPage, main2);
+			/*Display display = getActivity().getWindowManager().getDefaultDisplay();
+			Point size = new Point();
+			display.getSize(size);
+			//	int width = size.x;
+			int height = size.y;*/
+			new TaskGetLoveTab(getActivity()).execute(nPage, main2);
+			/*Отправлять numpage методом post
+			while(height > nPage * 2 * 150) {
+				Log.i("TAG", "height + page " + height + " " + nPage * 2 * 200);
+				nPage++;
+				loveNumPage++;
+				TaskSleepTab3 st3 = new TaskSleepTab3();
+				st3.execute(main2, nPage);
+
+			}*/
 			//}
 		//	syncLoading = false;
 		}
@@ -1903,10 +1966,18 @@ public class SuperAwesomeCardFragment extends Fragment {
 				String sex = String.valueOf(sPref.getInt("2", 0));*/
 
 				//Log.i("log_tag", "url get = " + sex);
+				Display display = getActivity().getWindowManager().getDefaultDisplay();
+				Point size = new Point();
+				display.getSize(size);
+				//	int width = size.x;
+				int height = size.y;
+
+				int quantity = height / 100;
+
 				String agent="Applet";
 				//  String query="query=" + r[0];
 				String query = "viewer_id=186332067&auth_key=eb2ca2e8df6ffc18daf33d07bdf119ac&inbox=" +
-						sex + "&page=" + numPage;
+						sex + "&page=" + numPage + "&quantity=" + quantity;
 				String type="application/x-www-form-urlencoded";
 				//	conn=(HttpsURLConnection)url.openConnection();
 
@@ -2054,7 +2125,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 					tv2.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
 
 
-					ImageView iv = new ImageView(getActivity());
+					final ImageView iv = new ImageView(getActivity());
 					iv.setImageDrawable(getResources().getDrawable(R.drawable.nast));
 					iv.setTag(ivTag);
 
@@ -2085,8 +2156,55 @@ public class SuperAwesomeCardFragment extends Fragment {
 								//	JSONArray arr = obj2.getJSONArray("items");
 								new TaskLoadImage().execute(arr.getJSONObject(0).getString("photo_100"),
 										photoTag, "0");
+
+								final String firstName = arr.getJSONObject(0).getString("first_name");
+								final String lastName = arr.getJSONObject(0).getString("last_name");
+								final String userid = arr.getJSONObject(0).getString("id");
 								tv2.setText(arr.getJSONObject(0).getString("first_name") + " " + arr.getJSONObject(0).getString("last_name")
 									+ finalAnonim);
+
+
+								iv.setOnClickListener(new OnClickListener() {
+
+									@Override
+									public void onClick(View v) {
+										// TODO Auto-generated method stub
+
+										AlertDialog.Builder ad = new AlertDialog.Builder(getActivity());
+										//TextView vText = (TextView) v;
+										ad.setTitle(firstName + " " + lastName);
+										// ad.ti
+										linearlayout = getActivity().getLayoutInflater().inflate(R.layout.modal_lovepage, null);
+										tableModal = (TableLayout) linearlayout.findViewById(R.id.tableModal);
+										//	tableModal.addView(anonSwitch);
+										/*new GetLoveAsync(getActivity()).execute("https://photolike.info/example_test/getSexType.php", userid);*/
+										TaskSleepTabModal stm = new TaskSleepTabModal();
+										stm.execute(userid);
+										ad.setView(linearlayout);
+										//  ad.setMessage(message); // сообщение
+										ad.setPositiveButton("Закрыть", new DialogInterface.OnClickListener() {
+											public void onClick(DialogInterface dialog, int arg1) {
+
+												//	db.insertToGis(equipcode, mlat, mlon);
+												//setEquipOnMap(mlat, mlon, appTitle);
+											}
+										});
+										//        ad.setNegativeButton(button2String, new DialogInterface.OnClickListener() {
+										//          public void onClick(DialogInterface dialog, int arg1) {
+
+										//            }
+										//      });
+										ad.setCancelable(true);
+										ad.setOnCancelListener(new DialogInterface.OnCancelListener() {
+											public void onCancel(DialogInterface dialog) {
+
+											}
+										});
+										ad.show();
+
+
+									}
+								});
 
 								//new MyAsync(getActivity()).execute(arr.getJSONObject(0).getString("photo_100"), Integer.toString(0), "0");
 							} catch (JSONException e) {
@@ -2126,14 +2244,29 @@ public class SuperAwesomeCardFragment extends Fragment {
 					Log.i("getbottom ", diff + " " + sv.getHeight() + " " + view.getBottom() + " " + sv.getBottom() + " " + view.getTop());
 				else
 					Log.i("getbottom ", "inviz");*/
-				if (pages > numPage)
-					isScroll = true;
-				syncLoading = false;
+
+				/*Display display = getActivity().getWindowManager().getDefaultDisplay();
+				Point size = new Point();
+				display.getSize(size);
+			//	int width = size.x;
+				int height = size.y;*/
+			/*	Log.i("height+pageheig ",  height + " " + numPage);
+				if (height > numPage * 6 * 50) {
+					//new TaskGetLoveTab(getActivity()).execute(numPage + 1, sex);
+					TaskSleepTab3 st3 = new TaskSleepTab3();
+					st3.execute(sex, numPage + 1);
+				}*/
+				//else {
+					if (pages > numPage)
+						isScroll = true;
+					syncLoading = false;
+				//}
 			}
 			catch(Exception e){
 				//Log.e("log_tag", "Error parsing data "+e.toString());
 				syncLoading = false;
 			}
+
 			syncLoading = false;
 
 			/*ScrollView sv = (ScrollView) v.findViewById(R.id.scroll2);
