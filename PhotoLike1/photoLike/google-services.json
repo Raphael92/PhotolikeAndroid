@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "882049299595",
+    "firebase_url": "https://photolike-7c391.firebaseio.com",
+    "project_id": "photolike-7c391",
+    "storage_bucket": "photolike-7c391.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:882049299595:android:f6174ff587524c84",
+        "android_client_info": {
+          "package_name": "kz.raphael.photolike"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "882049299595-tt88cs7cicbr7u848heivf17p6752i8s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqcgw6-AUZQmF0GXErZH_Dth1btxMU62Q"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

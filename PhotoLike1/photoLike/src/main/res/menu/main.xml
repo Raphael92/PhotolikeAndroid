@@ -3,10 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="kz.raphael.photolike.MainActivity" >
 
+    <item android:id="@+id/action_update"
+        android:title="@string/action_update"
+        android:icon="@android:drawable/stat_notify_sync_noanim"
+        android:enabled="false"
+        android:visible="true"
+        app:showAsAction="always" />
+
     <item
         android:id="@+id/myswitch"
         android:title=""
         app:showAsAction="always"
         app:actionLayout="@layout/switch_layout"/>
+
 
 </menu>

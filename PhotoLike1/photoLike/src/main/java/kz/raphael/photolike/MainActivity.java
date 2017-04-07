@@ -2,11 +2,13 @@ package kz.raphael.photolike;
 
 
 import com.astuetz.PagerSlidingTabStrip;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKScope;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
+import com.vk.sdk.api.model.VKApiUser;
 import com.vk.sdk.util.VKUtil;
 
 import android.app.Activity;
@@ -58,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_start);
         sPref = getSharedPreferences("sex", Context.MODE_PRIVATE);
         SharedPreferences.Editor ed = sPref.edit();
+        FirebaseMessaging.getInstance().subscribeToTopic("AllDevice");
         ed.putInt("main", 1);
         ed.putInt("0", 1);
         ed.putInt("1", 1);
@@ -75,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                           //  showLogin();
                             break;
                         case LoggedIn:
-							Log.i("TAG", "Вход");
+							Log.i("TAG", "Вход" + VKAccessToken.currentToken().userId);
                             showMain();
                             break;
                         case Pending:
@@ -169,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
             public void onResult(VKAccessToken res) {
                 // User passed Authorization
            //     startTestActivity();
+                Log.i("TAG", "userid " + res.userId);
 				showMain();
             }
 
@@ -287,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
 	
 	public class MyPagerAdapter extends FragmentPagerAdapter {
 
-		private final String[] TITLES = { "Друзья1", "Группы2", "Признания3" };
+		private final String[] TITLES = { "Друзья", "Группы", "Признания" };
 
 		public MyPagerAdapter(FragmentManager fm) {
 			super(fm);

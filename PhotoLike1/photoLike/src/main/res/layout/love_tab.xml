@@ -21,13 +21,16 @@
                 android:shrinkColumns="*">
                 <TableRow>
                     <TextView
+
                         android:text="Дата"
                         android:layout_gravity="center_horizontal|center_vertical"/>
                     <TextView
+
                         android:text="Кому"
                         android:layout_gravity="center_horizontal|center_vertical"
                         android:id="@+id/whom" />
                     <TextView
+
                         android:text="Признание"
                         android:layout_gravity="center_horizontal|center_vertical"/>
                 </TableRow>

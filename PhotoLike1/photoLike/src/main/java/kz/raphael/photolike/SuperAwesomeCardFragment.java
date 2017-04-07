@@ -18,6 +18,7 @@ package kz.raphael.photolike;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -26,13 +27,18 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
+import android.text.Html;
+import android.text.InputType;
+import android.text.method.LinkMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -113,6 +119,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 	//int sex = 1;
 	SharedPreferences sPref;
 //	BroadcastReceiver br;
+	private Menu optionsMenu;
 
 	private PagerSlidingTabStrip tabs;
 	private ViewPager pager;
@@ -496,6 +503,20 @@ public class SuperAwesomeCardFragment extends Fragment {
 		return fl;
 	}
 
+	public void setRefreshActionButtonState(final boolean refreshing) {
+		if (optionsMenu != null) {
+			final MenuItem refreshItem = optionsMenu
+					.findItem(R.id.action_update);
+			if (refreshItem != null) {
+				if (refreshing) {
+					refreshItem.setActionView(R.layout.action_progress);
+				} else {
+					refreshItem.setActionView(null);
+				}
+			}
+		}
+	}
+
 	public void loadFirstTab(int offset) {
 		//ll.removeAllViews();
 		//Log.i("TAG", "вкладка первая" );
@@ -518,7 +539,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 	}
 
 	public void loadSecondTab(int offset) {
-		VKRequest request = VKApi.groups().get(VKParameters.from(VKApiConst.FIELDS, "id, name, photo_100",
+		VKRequest request = VKApi.groups().get(VKParameters.from(VKApiConst.FIELDS, "photo_max_orig",
 				VKApiConst.EXTENDED, 1, VKApiConst.OFFSET, offset, VKApiConst.COUNT, /*10*/plusUserOffset));
 		request.registerObject();
 		request.executeWithListener(mRequestListenerGroup);
@@ -532,6 +553,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.main, menu);
+		this.optionsMenu = menu;
 		MenuItem menuItem= menu.findItem(R.id.myswitch);
         View view = MenuItemCompat.getActionView(menuItem);
         Switch switcha = (Switch)view.findViewById(R.id.switchForActionBar);
@@ -734,14 +756,34 @@ public class SuperAwesomeCardFragment extends Fragment {
 					//if (i ==0)
 						iv2.setTag(i);
 					//simpleWaitDialog.dismiss();
-					if (i == 0) {
+					/*if (i == 0) {
 						iv2.setPadding(0, 0, 0, 10);
 					}
 					else {
 						iv2.setPadding(0, 10, 0, 10);
-					}
+					}*/
+					iv2.setPadding(0, 0, 0, 0);
+
+					/*LinearLayout llName = new LinearLayout(getActivity());
+					llName.setGravity(Gravity.CENTER);
+					llName.setPadding(0, 0, 0, 20);
+					ImageView ivVk = new ImageView(getActivity());
+					ivVk.setImageDrawable(getResources().getDrawable(R.mipmap.vklogo32));*/
+
+					TextView tvGroupName = new TextView(getActivity());
+					tvGroupName.setText(Html.fromHtml("<a href=\"https://vk.com/club" + arr.getJSONObject(j).getString("id") + "\">" + groupName + "</a> "));
+					tvGroupName.setGravity(Gravity.CENTER);
+					tvGroupName.setMovementMethod(LinkMovementMethod.getInstance());
+					//tvGroupName.setTextColor(Color.argb(0, 132, 33, 65));
+					tvGroupName.setPadding(0, 0, 0, 20);
+
+					/*llName.addView(ivVk);
+					llName.addView(tvGroupName);*/
+
 					ll.addView(iv2);
-					new MyAsync(getActivity()).execute(arr.getJSONObject(j).getString("photo_100"), Integer.toString(i), "1" /*"https://pp.vk.me/c630229/v630229698/1ab4a/tEiUtwMWTyQ.jpg"*/);
+					ll.addView(tvGroupName);
+
+					new MyAsync(getActivity()).execute(arr.getJSONObject(j).getString("photo_max_orig"), Integer.toString(i), "1" /*"https://pp.vk.me/c630229/v630229698/1ab4a/tEiUtwMWTyQ.jpg"*/);
 					j++;
 					if (j == arr.length())
 						isScroll = true;
@@ -803,21 +845,28 @@ public class SuperAwesomeCardFragment extends Fragment {
 				JSONArray arr = obj2.getJSONArray("items");
 				String numPos = response.request.getMethodParameters().get("position").toString();
 				if (response.request.methodName.equals("groups.getMembers") && userOffset <= 10) {
+					ImageView bUp = new ImageView(getActivity());
+					bUp.setImageDrawable(getResources().getDrawable(R.mipmap.bttup));
+					LinearLayout lUp = new LinearLayout(getActivity());
 					TextView groupName = new TextView(getActivity());
+					//groupName.setGravity(Gravity.BOTTOM);
+					lUp.addView(bUp);
+					lUp.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+					lUp.addView(groupName);
 					globalGroupName = response.request.getMethodParameters().get("groupName").toString();
 					globalGroupId = response.request.getMethodParameters().get("group_id").toString();
 					groupName.setText(globalGroupName);
-					groupName.setOnClickListener(new OnClickListener() {
+					lUp.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
 							ll.removeAllViews();
-							VKRequest request = VKApi.groups().get(VKParameters.from(VKApiConst.FIELDS, "id, name, photo_100",
+							VKRequest request = VKApi.groups().get(VKParameters.from(VKApiConst.FIELDS, "photo_max_orig",
 									VKApiConst.EXTENDED, 1, VKApiConst.OFFSET, 0, VKApiConst.COUNT, /*10*/plusUserOffset));
 							request.registerObject();
 							request.executeWithListener(mRequestListenerGroup);
 						}
 					});
-					ll.addView(groupName);
+					ll.addView(lUp);
 				}
 
 				int j = 0;
@@ -833,7 +882,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 					if (arr.getJSONObject(j).getInt("sex") == sex || arr.getJSONObject(j).getInt("sex") == 0) {
 						loadedUsers++;
 						ImageView iv2 = new ImageView(getActivity());
-						final String firstName = arr.getJSONObject(j).getString("first_name") + i;
+						final String firstName = arr.getJSONObject(j).getString("first_name");
 						final String lastName = arr.getJSONObject(j).getString("last_name");
 						final String userid = arr.getJSONObject(j).getString("id");
 						//iv2.setTag("id" + userid);
@@ -887,8 +936,14 @@ public class SuperAwesomeCardFragment extends Fragment {
 						} else {
 							iv2.setPadding(0, 10, 0, 10);
 						}
+
+						TextView tvName = new TextView(getActivity());
+						tvName.setText(Html.fromHtml("<a href=\"https://vk.com/id" + arr.getJSONObject(j).getString("id") + "\">" + firstName + " " + lastName + "</a> "));
+						tvName.setGravity(Gravity.CENTER);
+						tvName.setMovementMethod(LinkMovementMethod.getInstance());
 						ll.addView(iv2);
-						new MyAsync(getActivity()).execute(arr.getJSONObject(j).getString("photo_100"), Integer.toString(i), "0");
+						ll.addView(tvName);
+						new MyAsync(getActivity()).execute(arr.getJSONObject(j).getString("photo_max_orig"), Integer.toString(i), "0");
 					}
 					j++;
 					if (j == arr.length())
@@ -1671,6 +1726,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 			Log.i("log_tag", "height " + nomRec + " " + countImage + " " + syncLoading);
 			if (nomRec == countImage) {
 				syncLoading = false;
+				setRefreshActionButtonState(false);
 				Log.i("log_tag", "height Завершил");
 			}
 		}
@@ -1680,8 +1736,24 @@ public class SuperAwesomeCardFragment extends Fragment {
 	public class TaskSleepTabModal extends AsyncTask<String, Void, Void> {
 		//int offset = 0;
 		String userid = "0";
+		String firstName = "";
+		String lastName = "";
+		//private ProgressDialog simpleWaitDialog;
 		public TaskSleepTabModal() {
 
+		}
+
+		@Override
+		protected void onPreExecute() {
+			//  Log.i("Async-Example", "onPreExecute Called");
+
+		//	simpleWaitDialog = ProgressDialog.show(getActivity(), null, null);
+			/*simpleWaitDialog = new ProgressDialog(getActivity());
+			simpleWaitDialog.setCancelable(false);
+			simpleWaitDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+			simpleWaitDialog.show();
+			simpleWaitDialog.setContentView(R.layout.progressdialog);*/
+			setRefreshActionButtonState(true);
 		}
 
 		@Override
@@ -1689,9 +1761,16 @@ public class SuperAwesomeCardFragment extends Fragment {
 
 			try {
 				userid = params[0];
+				firstName = params[1];
+				lastName = params[2];
+				int time = 0;
 				while (syncLoading) {
 					TimeUnit.SECONDS.sleep(1);
 					Log.i("TAG", "gettag1 " + syncLoading);
+					time++;
+					if (time > 60) {
+						syncLoading = false;
+					}
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -1701,14 +1780,59 @@ public class SuperAwesomeCardFragment extends Fragment {
 		}
 
 		public void onPostExecute(Void string) {
+			//simpleWaitDialog.dismiss();
+
+			AlertDialog.Builder ad = new AlertDialog.Builder(getActivity());
+			//TextView vText = (TextView) v;
+			ad.setTitle(firstName + " " + lastName);
+			// ad.ti
+			linearlayout = getActivity().getLayoutInflater().inflate(R.layout.modal_lovepage, null);
+			tableModal = (TableLayout) linearlayout.findViewById(R.id.tableModal);
 			new GetLoveAsync(getActivity()).execute("https://photolike.info/example_test/getSexType.php", userid);
+
+			ad.setView(linearlayout);
+			//  ad.setMessage(message); // сообщение
+			ad.setPositiveButton("Закрыть", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int arg1) {
+
+					//	db.insertToGis(equipcode, mlat, mlon);
+					//setEquipOnMap(mlat, mlon, appTitle);
+				}
+			});
+			//        ad.setNegativeButton(button2String, new DialogInterface.OnClickListener() {
+			//          public void onClick(DialogInterface dialog, int arg1) {
+
+			//            }
+			//      });
+			ad.setCancelable(true);
+			ad.setOnCancelListener(new DialogInterface.OnCancelListener() {
+				public void onCancel(DialogInterface dialog) {
+
+				}
+			});
+			ad.show();
+
 		}
 	}
 
 	public class TaskSleepTab1 extends AsyncTask<Integer, Void, Void> {
 		int offset = 0;
-
+		//private ProgressDialog simpleWaitDialog;
 		public TaskSleepTab1() {
+
+		}
+
+		@Override
+		protected void onPreExecute() {
+			//  Log.i("Async-Example", "onPreExecute Called");
+
+			//	simpleWaitDialog = ProgressDialog.show(getActivity(), null, null);
+		/*	simpleWaitDialog = new ProgressDialog(getActivity());
+			simpleWaitDialog.setCancelable(false);
+			simpleWaitDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+			simpleWaitDialog.show();
+			simpleWaitDialog.setContentView(R.layout.progressdialog);*/
+			setRefreshActionButtonState(true);
 
 		}
 
@@ -1736,6 +1860,8 @@ public class SuperAwesomeCardFragment extends Fragment {
 			request.registerObject();
 			request.addExtraParameter("position", position);
 			request.executeWithListener(mRequestListener);*/
+			//simpleWaitDialog.dismiss();
+
 			try {
 				if (offset == 0)
 					ll.removeAllViews();
@@ -1749,6 +1875,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 			request.addExtraParameter("position", 0);
 			request.executeWithListener(mRequestListener);
 			//syncLoading = false;
+			setRefreshActionButtonState(false);
 		}
 	}
 
@@ -1820,13 +1947,24 @@ public class SuperAwesomeCardFragment extends Fragment {
 	public class TaskSleepTab3 extends AsyncTask<Integer, Void, Void> {
 		int main2 = 0;
 		int nPage = 1;
+		//private ProgressDialog simpleWaitDialog;
 		public TaskSleepTab3() {
 
 		}
+
 		@Override
-		public void onPreExecute() {
-			//syncLoading = true;
+		protected void onPreExecute() {
+			//  Log.i("Async-Example", "onPreExecute Called");
+
+			//	simpleWaitDialog = ProgressDialog.show(getActivity(), null, null);
+		/*	simpleWaitDialog = new ProgressDialog(getActivity());
+			simpleWaitDialog.setCancelable(false);
+			simpleWaitDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+			simpleWaitDialog.show();
+			simpleWaitDialog.setContentView(R.layout.progressdialog);*/
+			setRefreshActionButtonState(true);
 		}
+
 		@Override
 		protected Void doInBackground(Integer... params) {
 			main2 = params[0];
@@ -1844,6 +1982,8 @@ public class SuperAwesomeCardFragment extends Fragment {
 
 		public void onPostExecute(Void string) {
 		//	if (loadThirdTab) {
+			//simpleWaitDialog.dismiss();
+
 				if (nPage == 1) {
 					fl.removeAllViews();
 					//syncLoading = false;
@@ -1908,6 +2048,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 			}*/
 			//}
 		//	syncLoading = false;
+			setRefreshActionButtonState(false);
 		}
 	}
 
@@ -2095,7 +2236,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 				FrameLayout fll = (FrameLayout) frg.getView();
 				View v = fll.getChildAt(0);
 				TableLayout tl = (TableLayout) v.findViewById(R.id.lovetab);
-
+			//	tl.setStretchAllColumns(true);
 
 				for(int i=0;i<string.length();i++){
 
@@ -2110,34 +2251,55 @@ public class SuperAwesomeCardFragment extends Fragment {
 					pages = json_data.getInt("pages");
 					String anonim = "";
 					if (json_data.getInt("anonim") == 1)
-						anonim = "(анонимно)";
+						anonim = " (анонимно)";
 					final String ivTag = json_data.getString("who_id") + "tag" + json_data.getString("id");
 					final String photoTag = json_data.getString("who_id") + "photo" + json_data.getString("id");
 
+					TableRow.LayoutParams p = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT);
+					//  p.weight = 3;
+
+
 					TableRow tr = new TableRow(getActivity());
 				//	tr.setTag(ivTag);
-
+					//tr.setLayoutParams(p);
 					TextView tv = new TextView(getActivity());
 					tv.setText(json_data.getString("likeDate"));
 					tv.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
+					//tv.setLayoutParams(p);
 
 					final TextView tv2 = new TextView(getActivity());
-					tv2.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
-
+					tv2.setPadding(5, 0, 0, 0);
+					//tv2.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
+				/*	tv2.setSingleLine(false);
+					//tv2.
+					tv2.setHorizontallyScrolling(false);
+					tv2.setMaxLines(4);*/
+					//tv2.setLayoutParams(p);
+					//tv2.setMu
+					//tv2.setHorizontallyScrolling(false);
+					//tv2.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 
 					final ImageView iv = new ImageView(getActivity());
 					iv.setImageDrawable(getResources().getDrawable(R.drawable.nast));
 					iv.setTag(ivTag);
+					//iv.setLayoutParams(p);
 
 					ImageView ivPhoto = new ImageView(getActivity());
 					ivPhoto.setImageDrawable(getResources().getDrawable(R.drawable.nast));
 					ivPhoto.setTag(photoTag);
+					//ivPhoto.setLayoutParams(p);
 
-					TableLayout tlPhoto = new TableLayout(getActivity());
+					/*TableLayout tlPhoto = new TableLayout(getActivity());
 					TableRow trPhoto = new TableRow(getActivity());
 					trPhoto.addView(ivPhoto);
 					trPhoto.addView(tv2);
-					tlPhoto.addView(trPhoto);
+					tlPhoto.addView(trPhoto);*/
+					LinearLayout llPhoto = new LinearLayout(getActivity());
+					llPhoto.setLayoutParams(p);
+					llPhoto.setPadding(10, 0, 0, 0);
+					llPhoto.setGravity(Gravity.CENTER);
+					llPhoto.addView(ivPhoto);
+					llPhoto.addView(tv2);
 
 					new TaskLoadImage().execute("https://photolike.info/example_test/images/" + json_data.getString("imgUrl"),
 							ivTag, "1"/*String.valueOf(i), String.valueOf(string.length())*/);
@@ -2169,38 +2331,8 @@ public class SuperAwesomeCardFragment extends Fragment {
 									@Override
 									public void onClick(View v) {
 										// TODO Auto-generated method stub
-
-										AlertDialog.Builder ad = new AlertDialog.Builder(getActivity());
-										//TextView vText = (TextView) v;
-										ad.setTitle(firstName + " " + lastName);
-										// ad.ti
-										linearlayout = getActivity().getLayoutInflater().inflate(R.layout.modal_lovepage, null);
-										tableModal = (TableLayout) linearlayout.findViewById(R.id.tableModal);
-										//	tableModal.addView(anonSwitch);
-										/*new GetLoveAsync(getActivity()).execute("https://photolike.info/example_test/getSexType.php", userid);*/
 										TaskSleepTabModal stm = new TaskSleepTabModal();
-										stm.execute(userid);
-										ad.setView(linearlayout);
-										//  ad.setMessage(message); // сообщение
-										ad.setPositiveButton("Закрыть", new DialogInterface.OnClickListener() {
-											public void onClick(DialogInterface dialog, int arg1) {
-
-												//	db.insertToGis(equipcode, mlat, mlon);
-												//setEquipOnMap(mlat, mlon, appTitle);
-											}
-										});
-										//        ad.setNegativeButton(button2String, new DialogInterface.OnClickListener() {
-										//          public void onClick(DialogInterface dialog, int arg1) {
-
-										//            }
-										//      });
-										ad.setCancelable(true);
-										ad.setOnCancelListener(new DialogInterface.OnCancelListener() {
-											public void onCancel(DialogInterface dialog) {
-
-											}
-										});
-										ad.show();
+										stm.execute(userid, firstName, lastName);
 
 
 									}
@@ -2224,7 +2356,7 @@ public class SuperAwesomeCardFragment extends Fragment {
 					});
 
 					tr.addView(tv);
-					tr.addView(tlPhoto);
+					tr.addView(llPhoto);
 					//tr.addView(tv2);
 					tr.addView(iv);
 					Log.i("log_tag","datastring: " + tv.getText());

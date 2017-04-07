@@ -7,5 +7,6 @@
     <integer name="com_vk_sdk_AppId">5304541</integer>
     <string name="man">Муж.</string>
     <string name="woman">Жен.</string>
+    <string name="action_update">Обновление</string>
 
 </resources>
